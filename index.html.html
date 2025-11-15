@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>思考タイプ診断</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fffaf0;
+      color: #333333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+      line-height: 1.7;
+    }
+    h1, h2, h3 {
+      margin-top: 1.2em;
+      margin-bottom: 0.4em;
+    }
+    p {
+      margin: 0.4em 0;
+    }
+    .intro {
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .question {
+      margin: 12px 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .question-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    .options {
+      margin-top: 4px;
+      font-size: 13px;
+    }
+    .options label {
+      display: block;
+      margin: 1px 0;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      background: #274060;
+      color: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    #result {
+      margin-top: 32px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      display: none;
+    }
+    .type-name {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .type-short {
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      margin-top: 16px;
+      margin-bottom: 6px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      margin: 4px 0;
+      font-size: 13px;
+    }
+    .bar-label {
+      width: 90px;
+    }
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      border-radius: 999px;
+      background: #eee;
+      overflow: hidden;
+      margin-right: 8px;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+    .bar-value {
+      width: 40px;
+      font-size: 12px;
+      text-align: right;
+    }
+    ul {
+      padding-left: 20px;
+      margin: 4px 0 8px;
+      font-size: 13px;
+    }
+    li {
+      margin: 2px 0;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+      .bar-label {
+        width: 70px;
+        font-size: 12px;
+      }
+      .type-name {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>あなたの思考タイプ診断</h1>
+  <p class="intro">
+    40の質問に直感で答えると、あなたの思考スタイルを6つの軸から分析します。<br>
+    「とても当てはまる〜全く当てはまらない」の中から、一番近いものを選んでください。
+  </p>
+
+  <div id="questions"></div>
+
+  <button class="btn" id="submitBtn">結果を見る</button>
+
+  <div id="result"></div>
+
+  <script>
+    // 40問（Bタイプ：やや長めの文） 基本順は固定、表示時にランダムシャッフル
+    const baseQuestions = [
+      { id: 1, text: "自分の気持ちや考えを整理するとき、まず頭の中で文章にしてから理解しようとすることが多いです。" },
+      { id: 2, text: "誰かの説明を聞くとき、図やイラストが一緒にあると、言葉だけのときよりもずっと早く理解できると感じます。" },
+      { id: 3, text: "出来事を思い出すとき、単なる事実ではなく「どんな流れで起きたか」という物語として思い返すことが多いです。" },
+      { id: 4, text: "人と話しているとき、その人の表情や声のトーンから、言葉以上に気持ちを敏感に感じ取ってしまう方です。" },
+      { id: 5, text: "新しいことを始めるときは、全体の流れや手順を事前にざっくりでも組み立ててから動きたいと感じることが多いです。" },
+      { id: 6, text: "細かい理由は説明できなくても、「なんとなくこうした方が良さそうだ」という直観で決めてうまくいくことがよくあります。" },
+
+      { id: 7, text: "初めて聞く内容でも、口頭で丁寧に説明してもらえると、自分の頭の中で筋道立てて理解しやすいと感じます。" },
+      { id: 8, text: "行動する前に、実際にやってみる様子を頭の中で映像のようにシミュレーションしてから動くことがよくあります。" },
+      { id: 9, text: "日常の中で起きた些細な出来事でも、「もし自分が物語の主人公だったら」と置き換えて考えてしまうことがあります。" },
+      { id: 10, text: "自分の感情が大きく揺れた日は、頭では切り替えようとしても、しばらく集中力や行動に影響が出やすいと感じます。" },
+      { id: 11, text: "予想外のことが多い状況よりも、ある程度のルールや手順が決まっている環境の方が安心して動けると感じます。" },
+      { id: 12, text: "説明を聞いている途中で、ふと「多分こういう結論になるな」とひらめきが降りてきて、後でそれが当たっていることがあります。" },
+
+      { id: 13, text: "モヤモヤした気持ちや複雑な考えごとは、紙やスマホに文章として書き出すと、自然と整理されて楽になることが多いです。" },
+      { id: 14, text: "過去の記憶をたどるとき、その場の景色や色合い、配置などを思い出すことで詳細を思い出しやすいです。" },
+      { id: 15, text: "自分や他人の経験を聞くとき、その背景や動機を含めて「一つの物語」として理解すると納得しやすいと感じます。" },
+      { id: 16, text: "何かを決めるとき、論理的な理由よりも「なぜかしっくりくるかどうか」という感覚が判断基準になることがあります。" },
+      { id: 17, text: "作業や勉強を進めるときは、「最初にこれ、その次にこれ」と順番を決めて進める方が、落ち着いて取り組めます。" },
+      { id: 18, text: "まだ形になっていないアイデアでも、「この方向性は面白くなりそうだ」と感覚的に掴むのが得意だと感じます。" },
+
+      { id: 19, text: "新しい知識を覚えるとき、実際に声に出して説明してみると、理解が深まり記憶にも残りやすいと感じます。" },
+      { id: 20, text: "メモやノートを取るとき、内容だけでなく、見た目のレイアウトや余白のバランスも気になってしまう方です。" },
+      { id: 21, text: "何かを人に説明するとき、「最初にこうなって、その後こうなって」と時間の流れに沿って話したくなることが多いです。" },
+      { id: 22, text: "映画やドラマ、友人の話などに触れたとき、登場人物の気持ちに強く感情移入してしまい、余韻が長く残ることがあります。" },
+      { id: 23, text: "曖昧な指示よりも、「何を・いつまでに・どのように」という具体的な情報がある方が、ストレスなく行動できます。" },
+      { id: 24, text: "計画を立てるとき、最初から細部まで決めるよりも「まずはざっくり決めて、後から柔軟に変えていく」方が合っていると感じます。" },
+
+      { id: 25, text: "人の会話や文章を読むとき、細かな言い回しや表現の違いから、話し手の意図を探ることが多いです。" },
+      { id: 26, text: "色分けやアイコン、図表など、視覚的な工夫がされた資料を見ると、自然と理解が早まり頭に入りやすくなります。" },
+      { id: 27, text: "自分の気持ちや状況を説明するとき、「例えば〜みたいな感じ」と比喩やたとえ話を使うことがよくあります。" },
+      { id: 28, text: "人にきつい言い方をされたり、場の空気が重くなったりすると、その場を離れても気持ちを引きずりやすい方だと思います。" },
+      { id: 29, text: "同じやり方を何度も繰り返すルーティンがあると、安心して集中できると感じる場面が多いです。" },
+      { id: 30, text: "何かを学んでいる途中で、バラバラだった知識が急につながり、一気に全体像が見えるような感覚になることがあります。" },
+
+      { id: 31, text: "頭の中で「もし〜だったらどうなるか」という仮定の文章をよく組み立てながら、先の展開を考えることがあります。" },
+      { id: 32, text: "学習や説明資料は、文章だけよりも図解やチャートが多いものの方が、自然と集中して読めると感じます。" },
+      { id: 33, text: "印象に残った会話やセリフを、その場の雰囲気ごと頭の中で何度も再生しながら噛みしめることがあります。" },
+      { id: 34, text: "自分の気持ちを誰かに聞いてもらい、共感してもらえたとき、問題が完全に解決していなくてもかなり楽になると感じます。" },
+      { id: 35, text: "スケジュール帳やカレンダーを使って、予定やタスクを整理しておくと、心の中も整っていくような感覚があります。" },
+      { id: 36, text: "計画を細かく立てていても、その場の流れを見て「やっぱりこっちの方が良さそう」と直前で方向転換することがあります。" },
+
+      { id: 37, text: "複雑な出来事があったとき、自分の感情や考えを誰かに言葉で説明することで、初めて状況が整理されると感じることがあります。" },
+      { id: 38, text: "何かを説明されたとき、図やレイアウトが頭の中に残り、そのイメージを手がかりに内容を思い出すことが多いです。" },
+      { id: 39, text: "人との出会いや別れなどの経験を、「自分の人生の一つの章だった」と物語の一部のように捉えたくなることがあります。" },
+      { id: 40, text: "自分の気持ちを大切にしてくれる人や、感情を受け止めてくれる環境にいるときに、一番自分らしくいられると感じます。" }
+    ];
+
+    // 6タイプへの対応（質問IDベース）
+    const typeMapping = {
+      linguistic: [1, 7, 13, 19, 25, 31, 37],      // 言葉で考える
+      visual:     [2, 8, 14, 20, 26, 32, 38],      // 視覚で考える
+      narrative:  [3, 9, 15, 21, 27, 33, 39],      // 物語で考える
+      emotional:  [4, 10, 16, 22, 28, 34, 40],     // 感情で考える
+      structural: [5, 11, 17, 23, 29, 35],         // 構造で考える
+      intuitive:  [6, 12, 18, 24, 30, 36]          // 直観で考える
+    };
+
+    // 表示用ラベルとバーの色
+    const axisInfo = {
+      linguistic: { label: "言語型",    color: "#f4d35e" },
+      visual:     { label: "視覚型",    color: "#7ec8e3" },
+      narrative:  { label: "物語型",    color: "#274060" },
+      emotional:  { label: "感情型",    color: "#ff8fa3" },
+      structural: { label: "構造型",    color: "#4caf50" },
+      intuitive:  { label: "直観型",    color: "#8884ff" }
+    };
+
+    // 結果説明（6タイプ × 詳細）
+    const typeDetails = {
+      linguistic: {
+        name: "言語型（Linguistic）",
+        short: "言葉で物事を整理し、理解を組み立てる力が強いタイプです。会話や文章化を通して、自分の考えを深めていきます。",
+        strengths: [
+          "論理的に筋道立てて説明できる",
+          "言葉で整理するスピードが速い",
+          "他者にわかりやすく伝えることが得意"
+        ],
+        weaknesses: [
+          "イメージ中心の説明だとつかみにくい",
+          "感覚的・抽象的な話にモヤモヤしやすい"
+        ],
+        goodMatch: "構造型・物語型",
+        badMatch: "直観型（説明が感覚寄りのとき）",
+        dailyGood: [
+          "経験を日記やメモとして言語化する",
+          "人に説明しながら自分の理解を深める",
+          "企画やアイデアを文章として整理する"
+        ],
+        dailyStress: [
+          "説明が曖昧なまま進むミーティング",
+          "感覚だけで決められて理由が共有されない場面"
+        ],
+        jobs: [
+          "ライター・編集",
+          "企画・広報・PR",
+          "講師・教育・トレーナー",
+          "秘書・調整役"
+        ],
+        study: [
+          "自分の言葉で要約する勉強法",
+          "声に出して説明しながら覚える",
+          "ポイントを文章で箇条書きにする"
+        ]
+      },
+      visual: {
+        name: "視覚型（Visual）",
+        short: "目で見た情報から直感的に理解しやすいタイプです。図・色・レイアウトなど、視覚情報が多いほど力を発揮します。",
+        strengths: [
+          "図やレイアウトで素早く全体像を掴める",
+          "空間認知やバランス感覚が高い",
+          "見た目を整える工夫が得意"
+        ],
+        weaknesses: [
+          "口頭だけの説明は頭に入りにくい",
+          "数字や文章だけの資料に疲れやすい"
+        ],
+        goodMatch: "直観型（イメージベースで話しやすい）",
+        badMatch: "言語型（言葉だけの説明が多い場合）",
+        dailyGood: [
+          "デスクやノートのレイアウトを整える",
+          "色分けや図解で情報を整理する",
+          "地図や図表を使ってルートや構造を把握する"
+        ],
+        dailyStress: [
+          "文字ばかりで図のない資料を読み続けること",
+          "説明を聞くだけで視覚情報が全くない場面"
+        ],
+        jobs: [
+          "デザイナー（グラフィック・Webなど）",
+          "建築・インテリア・空間デザイン",
+          "プレゼン資料作成・スライド制作",
+          "映像・写真・クリエイティブ系"
+        ],
+        study: [
+          "マインドマップや図解を使った学習",
+          "重要箇所を色分けするノート術",
+          "チャートや図表の多い教材を選ぶ"
+        ]
+      },
+      narrative: {
+        name: "物語型（Narrative）",
+        short: "出来事を物語として理解するタイプです。背景や流れを含めて意味づけすることで、情報が深く心に残ります。",
+        strengths: [
+          "ストーリーとして整理して話すことが得意",
+          "背景や文脈を読み取る力が高い",
+          "人の経験を物語として理解できる"
+        ],
+        weaknesses: [
+          "数字だけの説明や箇条書きが頭に入りにくい",
+          "結論だけを端的に言われると物足りなさを感じる"
+        ],
+        goodMatch: "感情型（気持ちの動きを共有しやすい）",
+        badMatch: "構造型（ルール重視すぎると窮屈に感じやすい）",
+        dailyGood: [
+          "自分の経験をエピソードとして振り返る",
+          "人の話を「その人の物語」として聞く",
+          "映画や本から自分なりの解釈を見つける"
+        ],
+        dailyStress: [
+          "意味や背景を説明してもらえない状況",
+          "ただタスクだけ渡されるような仕事の仕方"
+        ],
+        jobs: [
+          "作家・シナリオライター",
+          "カウンセリング・コーチング",
+          "マーケティング・ブランディング",
+          "接客・サービス業"
+        ],
+        study: [
+          "ストーリー仕立てで覚える",
+          "歴史や理論の背景を一緒に調べる",
+          "エピソードや事例をセットで暗記する"
+        ]
+      },
+      emotional: {
+        name: "感情型（Emotional）",
+        short: "自分と他者の感情を手がかりに理解していくタイプです。雰囲気や空気感に敏感で、人との関係性が大きな意味を持ちます。",
+        strengths: [
+          "共感力が高く、人の気持ちに寄り添える",
+          "場の空気を読むことが得意",
+          "感情の変化に細やかに気づける"
+        ],
+        weaknesses: [
+          "感情に引きずられて疲れやすい",
+          "冷たい態度や無関心さに強いストレスを感じる"
+        ],
+        goodMatch: "物語型（感情と背景を共有しやすい）",
+        badMatch: "構造型（感情よりルールを優先されると辛い）",
+        dailyGood: [
+          "人の相談に乗ること",
+          "感情を言葉にして整理すること",
+          "共感し合える相手と過ごす時間"
+        ],
+        dailyStress: [
+          "感情を軽視される環境",
+          "一方的で配慮のないコミュニケーション"
+        ],
+        jobs: [
+          "カウンセラー・メンタルケア",
+          "接客・サービス・ホスピタリティ",
+          "教育・保育・指導",
+          "人事・労務・相談窓口"
+        ],
+        study: [
+          "自分の気持ちと結びつけて内容を覚える",
+          "人に説明しながら感情ごと理解する",
+          "モチベーションが上がる環境で学ぶ"
+        ]
+      },
+      structural: {
+        name: "構造型（Structural）",
+        short: "ルールや手順、仕組みで物事を理解するタイプです。全体を整理し、効率よく進める方法を考えるのが得意です。",
+        strengths: [
+          "手順や仕組みを作るのが得意",
+          "計画性が高く、抜け漏れを減らせる",
+          "複雑な内容を構造化して整理できる"
+        ],
+        weaknesses: [
+          "急な変更や曖昧さにストレスを感じやすい",
+          "柔軟すぎる進め方に不安を覚えやすい"
+        ],
+        goodMatch: "言語型（論理で話し合いやすい）",
+        badMatch: "直観型（勢いで変えられると不安になりやすい）",
+        dailyGood: [
+          "TODOリストやチェックリストを作成する",
+          "決まった手順をルーティンとして整える",
+          "片付けや配置を工夫して作業効率を上げる"
+        ],
+        dailyStress: [
+          "その場のノリだけで方針が変わる状況",
+          "ゴールやルールがはっきりしないまま進むこと"
+        ],
+        jobs: [
+          "事務・バックオフィス",
+          "経理・会計",
+          "秘書・アシスタント",
+          "プロジェクト管理・PM"
+        ],
+        study: [
+          "学習手順やスケジュールを先に決める",
+          "ルールやパターンごとに整理して覚える",
+          "問題演習を繰り返しながら型を身につける"
+        ]
+      },
+      intuitive: {
+        name: "直観型（Intuitive）",
+        short: "ひらめきや感覚で方向性をつかむタイプです。変化に強く、新しい可能性を見つけることが得意です。",
+        strengths: [
+          "アイデアや発想が豊富",
+          "状況に応じて柔軟にやり方を変えられる",
+          "全体の雰囲気から大まかな方向性を素早く掴める"
+        ],
+        weaknesses: [
+          "細かいルールや手順を守るのが苦手",
+          "論理的に説明することに負担を感じやすい"
+        ],
+        goodMatch: "視覚型（イメージで共有しやすい）",
+        badMatch: "構造型（厳密な手順を重視する相手）",
+        dailyGood: [
+          "新しいことに挑戦する場面",
+          "アイデアを出し合うブレインストーミング",
+          "変化の多い環境での臨機応変な対応"
+        ],
+        dailyStress: [
+          "細かい規則に縛られる単調な作業",
+          "柔軟性が全く許されない職場環境"
+        ],
+        jobs: [
+          "起業家・フリーランス",
+          "企画・新規事業開発",
+          "クリエイティブ職全般",
+          "営業・提案型の仕事"
+        ],
+        study: [
+          "まず全体像をラフにつかむ学び方",
+          "思いつきや発見をメモに残して整理する",
+          "やりながら試行錯誤して調整していくスタイル"
+        ]
+      }
+    };
+
+    // 配列シャッフル
+    function shuffleArray(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // 質問描画
+    const qContainer = document.getElementById("questions");
+    const shuffled = shuffleArray(baseQuestions);
+
+    shuffled.forEach((q, index) => {
+      const div = document.createElement("div");
+      div.className = "question";
+      div.innerHTML = `
+        <div class="question-title">${index + 1}. ${q.text}</div>
+        <div class="options">
+          ${[5,4,3,2,1].map(v => `
+            <label>
+              <input type="radio" name="q${q.id}" value="${v}">
+              ${
+                v === 5 ? "とても当てはまる" :
+                v === 4 ? "やや当てはまる" :
+                v === 3 ? "どちらとも言えない" :
+                v === 2 ? "あまり当てはまらない" :
+                           "全く当てはまらない"
+              }
+            </label>
+          `).join("")}
+        </div>
+      `;
+      qContainer.appendChild(div);
+    });
+
+    // スコア計算（タイプごとに0〜100点化）
+    function calculateScores() {
+      // 未回答チェック
+      for (const q of baseQuestions) {
+        const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+        if (!selected) {
+          alert("未回答の質問があります。質問番号を確認してください。");
+          return null;
+        }
+      }
+
+      // 生スコア
+      const raw = {
+        linguistic: 0,
+        visual: 0,
+        narrative: 0,
+        emotional: 0,
+        structural: 0,
+        intuitive: 0
+      };
+
+      for (const type in typeMapping) {
+        typeMapping[type].forEach(id => {
+          const ans = document.querySelector(`input[name="q${id}"]:checked`);
+          if (ans) {
+            raw[type] += Number(ans.value);
+          }
+        });
+      }
+
+      // 正規化（1〜5 → 0〜100）
+      const normalized = {};
+      for (const type in raw) {
+        const count = typeMapping[type].length;
+        const min = 1 * count;
+        const max = 5 * count;
+        const val = raw[type];
+        const score = Math.round((val - min) / (max - min) * 100);
+        normalized[type] = Math.max(0, Math.min(100, score));
+      }
+
+      return normalized;
+    }
+
+    // 結果表示
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      const scores = calculateScores();
+      if (!scores) return;
+
+      // 一番高いタイプ
+      let bestType = null;
+      let bestScore = -1;
+      for (const type in scores) {
+        if (scores[type] > bestScore) {
+          bestScore = scores[type];
+          bestType = type;
+        }
+      }
+
+      const detail = typeDetails[bestType];
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+
+      // グラフHTML
+      const order = ["linguistic", "visual", "narrative", "emotional", "structural", "intuitive"];
+      const barHtml = order.map(type => {
+        const info = axisInfo[type];
+        const val = scores[type];
+        return `
+          <div class="bar-row">
+            <div class="bar-label">${info.label}</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${val}%; background:${info.color};"></div>
+            </div>
+            <div class="bar-value">${val}%</div>
+          </div>
+        `;
+      }).join("");
+
+      function listHtml(items) {
+        return `<ul>${items.map(t => `<li>${t}</li>`).join("")}</ul>`;
+      }
+
+      resultDiv.innerHTML = `
+        <h2>診断結果</h2>
+        <div class="type-name">${detail.name}</div>
+        <p class="type-short">${detail.short}</p>
+
+        <h3 class="section-title">思考タイプバランス</h3>
+        ${barHtml}
+
+        <h3 class="section-title">タイプの特徴</h3>
+        <p>${detail.short}</p>
+
+        <h3 class="section-title">長所</h3>
+        ${listHtml(detail.strengths)}
+
+        <h3 class="section-title">短所・注意ポイント</h3>
+        ${listHtml(detail.weaknesses)}
+
+        <h3 class="section-title">相性の良い思考タイプ</h3>
+        <p>${detail.goodMatch}</p>
+
+        <h3 class="section-title">衝突しやすい思考タイプ</h3>
+        <p>${detail.badMatch}</p>
+
+        <h3 class="section-title">日々の得意なこと・生かし方</h3>
+        ${listHtml(detail.dailyGood)}
+
+        <h3 class="section-title">日々ストレスになりやすいこと</h3>
+        ${listHtml(detail.dailyStress)}
+
+        <h3 class="section-title">向いている職業の例</h3>
+        ${listHtml(detail.jobs)}
+
+        <h3 class="section-title">おすすめの勉強・学び方</h3>
+        ${listHtml(detail.study)}
+      `;
+
+      resultDiv.scrollIntoView({ behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
