@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>思考タイプ診断</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fffaf0;
+      color: #333333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+      line-height: 1.7;
+    }
+    h1, h2, h3 {
+      margin-top: 1.2em;
+      margin-bottom: 0.4em;
+    }
+    .question {
+      margin: 16px 0;
+      padding: 12px;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .options {
+      margin-top: 8px;
+    }
+    .options label {
+      display: block;
+      margin: 2px 0;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      background: #274060;
+      color: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    #result {
+      margin-top: 32px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      display: none;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      margin: 4px 0;
+    }
+    .bar-label {
+      width: 90px;
+      font-size: 13px;
+    }
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      border-radius: 999px;
+      background: #eee;
+      overflow: hidden;
+      margin-right: 8px;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+    .bar-value {
+      width: 32px;
+      font-size: 12px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <h1>あなたの思考タイプ診断</h1>
+  <p>24の質問に答えると、あなたの思考スタイルを6つの軸から分析します。</p>
+
+  <div id="questions"></div>
+
+  <button class="btn" id="submitBtn">結果を見る</button>
+
+  <div id="result"></div>
+
+  <script>
+    // 思考タイプの軸
+    const axes = {
+      verbal:   { label: "言語",   color: "#f4d35e" },
+      visual:   { label: "視覚",   color: "#7ec8e3" },
+      symbolic: { label: "象徴",   color: "#7a4eab" },
+      narrative:{ label: "物語",   color: "#274060" },
+      intuitive:{ label: "直感",   color: "#4caf50" },
+      spatial:  { label: "空間",   color: "#888888" }
+    };
+
+    // 質問24問
+    const questions = [
+      { id: 1, axis: "verbal", text: "自分の気持ちや考えは、言葉にすると理解しやすくなります。" },
+      { id: 2, axis: "verbal", text: "人に説明するとき、頭の中で文章を組み立てています。" },
+      { id: 3, axis: "verbal", text: "何かを覚えるとき、声に出したり書きながら整理するほうが楽です。" },
+      { id: 4, axis: "verbal", text: "抽象的な話でも、言葉で説明されれば理解しやすいです。" },
+
+      { id: 5, axis: "visual", text: "新しい場所を覚えるとき、地図や風景の“見た目”が浮かびます。" },
+      { id: 6, axis: "visual", text: "人の話を聞くとき、頭の中に場面やイメージが浮かびます。" },
+      { id: 7, axis: "visual", text: "説明を聞くより、図やイラストで見たほうが理解が速いです。" },
+      { id: 8, axis: "visual", text: "記憶するとき、色・形・配置などのイメージで覚えがちです。" },
+
+      { id: 9,  axis: "symbolic", text: "物事を見たときに「これは何を象徴しているんだろう」と考えることがあります。" },
+      { id: 10, axis: "symbolic", text: "何かを説明するとき、比喩や例え話をよく使います。" },
+      { id: 11, axis: "symbolic", text: "一つの物やシーンから、裏にある意味やテーマを考えるのが好きです。" },
+      { id: 12, axis: "symbolic", text: "抽象的な概念を、象徴やイメージに置き換えるのが得意です。" },
+
+      { id: 13, axis: "narrative", text: "出来事を「流れ」や「物語」として理解することが多いです。" },
+      { id: 14, axis: "narrative", text: "事実を単体で覚えるより、物語にしたほうが理解しやすいです。" },
+      { id: 15, axis: "narrative", text: "自分の経験を“ストーリー”として振り返ることがあります。" },
+      { id: 16, axis: "narrative", text: "会話や授業の内容は「前後のつながり」で記憶しています。" },
+
+      { id: 17, axis: "intuitive", text: "なぜかは説明できないけれど「こっちのほうが良さそう」と思う瞬間があります。" },
+      { id: 18, axis: "intuitive", text: "初対面の人の雰囲気から、すぐに印象を掴むほうです。" },
+      { id: 19, axis: "intuitive", text: "悩むより先に、感覚的に判断して動くことがよくあります。" },
+      { id: 20, axis: "intuitive", text: "ひらめきや直感が、意外と当たることが多いです。" },
+
+      { id: 21, axis: "spatial", text: "部屋の家具配置やレイアウトを頭の中でイメージできます。" },
+      { id: 22, axis: "spatial", text: "地図を見ながら目的地までのルートをすぐ理解できます。" },
+      { id: 23, axis: "spatial", text: "立体や構造物を、頭の中で回転させたり動かすことができます。" },
+      { id: 24, axis: "spatial", text: "パズル・ブロック・立体物を組み立てるのが得意です。" }
+    ];
+
+    // タイプ定義（仮）
+    const types = [
+      {
+        id: "poetic_storyteller",
+        name: "詩的ストーリーテラータイプ",
+        condition: (scores) => (
+          scores.verbal >= 31 && scores.symbolic >= 31 && scores.narrative >= 31
+        ),
+        summary: "言葉・象徴・物語で世界を理解するタイプ。深いテーマを扱った創作やスピーチに向いています。"
+      },
+      {
+        id: "visual_creator",
+        name: "ビジュアルクリエイタータイプ",
+        condition: (scores) => (
+          scores.visual >= 31 && scores.spatial >= 31
+        ),
+        summary: "見た目・構図・空間で世界を理解するタイプ。デザインやレイアウトに強みがあります。"
+      },
+      {
+        id: "logic_analyzer",
+        name: "理論アナライザータイプ",
+        condition: (scores) => (
+          scores.verbal >= 31 && scores.spatial >= 21
+        ),
+        summary: "構造と理由で考えるタイプ。分析や計画立案に強みがあります。"
+      }
+    ];
+
+    // 質問を描画
+    const qContainer = document.getElementById("questions");
+    questions.forEach(q => {
+      const div = document.createElement("div");
+      div.className = "question";
+      div.innerHTML = `
+        <div>${q.id}. ${q.text}</div>
+        <div class="options">
+          ${[5,4,3,2,1].map(v => `
+            <label>
+              <input type="radio" name="q${q.id}" value="${v}">
+              ${v === 5 ? "とても当てはまる"
+                : v === 4 ? "やや当てはまる"
+                : v === 3 ? "どちらとも言えない"
+                : v === 2 ? "あまり当てはまらない"
+                : "全く当てはまらない"}
+            </label>
+          `).join("")}
+        </div>
+      `;
+      qContainer.appendChild(div);
+    });
+
+    // 結果計算
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      const scores = { verbal:0, visual:0, symbolic:0, narrative:0, intuitive:0, spatial:0 };
+
+      for (const q of questions) {
+        const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+        if (!selected) {
+          alert("未回答の質問があります。");
+          return;
+        }
+        const v = Number(selected.value);
+        scores[q.axis] += v * 2;
+      }
+
+      // タイプ判定
+      let matchedType = null;
+      for (const t of types) {
+        if (t.condition(scores)) {
+          matchedType = t;
+          break;
+        }
+      }
+      if (!matchedType) {
+        matchedType = {
+          id: "balanced",
+          name: "バランスタイプ",
+          summary: "特定の軸に偏りがなく、状況に応じて柔軟に考え方を変えられます。"
+        };
+      }
+
+      // 結果表示
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+
+      const barHtml = Object.keys(axes).map(axisId => {
+        const axis = axes[axisId];
+        const score = scores[axisId];
+        const barLen = Math.round(score / 4);
+        return `
+          <div class="bar-row">
+            <div class="bar-label">${axis.label}</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${barLen * 10}%; background:${axis.color};"></div>
+            </div>
+            <div class="bar-value">${score}</div>
+          </div>
+        `;
+      }).join("");
+
+      resultDiv.innerHTML = `
+        <h2>結果</h2>
+        <h3>${matchedType.name}</h3>
+        <p>${matchedType.summary}</p>
+        <h3>思考スタイル分布</h3>
+        ${barHtml}
+      `;
+    });
+  </script>
+</body>
+</html>
