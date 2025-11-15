@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>사고 스타일 진단</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #fffaf0;
+            color: #333333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px;
+            line-height: 1.7;
+        }
+        h1, h2, h3 {
+            margin-top: 1.2em;
+            margin-bottom: 0.4em;
+        }
+        p {
+            margin: 0.4em 0;
+        }
+        .intro {
+            margin-bottom: 16px;
+        }
+        .question {
+            margin: 12px 0;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .options {
+            margin-top: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+        }
+        .options label {
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .options input {
+            margin-right: 4px;
+        }
+        .btn-wrapper {
+            margin: 24px 0 16px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 24px;
+            border-radius: 999px;
+            border: none;
+            background: #ffb347;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #ff9a2b;
+        }
+        #result {
+            margin-top: 24px;
+            padding: 16px 18px;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        #result-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .result-main-type {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .result-summary {
+            margin-bottom: 14px;
+        }
+        .bars {
+            margin-top: 8px;
+        }
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+        }
+        .bar-label {
+            width: 64px;
+            font-size: 13px;
+        }
+        .bar-outer {
+            flex: 1;
+            height: 10px;
+            border-radius: 999px;
+            background: #eee3d5;
+            overflow: hidden;
+        }
+        .bar-inner {
+            height: 10px;
+            border-radius: 999px;
+            background: #ffb347;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .bar-score {
+            width: 32px;
+            text-align: right;
+            font-size: 12px;
+        }
+        .advice-section {
+            margin-top: 16px;
+            border-top: 1px solid #f0e0cf;
+            padding-top: 12px;
+            font-size: 14px;
+        }
+        .advice-section h3 {
+            font-size: 15px;
+        }
+        .advice-section ul {
+            padding-left: 20px;
+            margin: 4px 0 8px;
+        }
+        .advice-section li {
+            margin: 2px 0;
+        }
+        .note {
+            font-size: 12px;
+            color: #777;
+            margin-top: 8px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            .bar-label {
+                width: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>당신의 사고 스타일 진단</h1>
+    <p class="intro">
+        24개의 질문에 답하면, 당신의 사고 스타일을 6개의 축으로 분석합니다.<br />
+        직관적인診断이므로、가볍게楽しむ感覚でお試しください。
+    </p>
+
+    <div id="questions"></div>
+
+    <div class="btn-wrapper">
+        <button id="calcBtn">결과 보기</button>
+    </div>
+
+    <div id="result" style="display:none;">
+        <div id="result-title">결과</div>
+        <div class="result-main-type" id="result-main-type"></div>
+        <div class="result-summary" id="result-summary"></div>
+
+        <h3>사고 스타일 분포</h3>
+        <div class="bars">
+            <div class="bar-row">
+                <div class="bar-label">언어</div>
+                <div class="bar-outer"><div class="bar-inner" id="bar-language"></div></div>
+                <div class="bar-score" id="score-language"></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">시각</div>
+                <div class="bar-outer"><div class="bar-inner" id="bar-visual"></div></div>
+                <div class="bar-score" id="score-visual"></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">상징</div>
+                <div class="bar-outer"><div class="bar-inner" id="bar-symbolic"></div></div>
+                <div class="bar-score" id="score-symbolic"></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">이야기</div>
+                <div class="bar-outer"><div class="bar-inner" id="bar-story"></div></div>
+                <div class="bar-score" id="score-story"></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">논리</div>
+                <div class="bar-outer"><div class="bar-inner" id="bar-logical"></div></div>
+                <div class="bar-score" id="score-logical"></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">직관</div>
+                <div class="bar-outer"><div class="bar-inner" id="bar-intuitive"></div></div>
+                <div class="bar-score" id="score-intuitive"></div>
+            </div>
+        </div>
+
+        <div class="advice-section" id="advice"></div>
+        <p class="note">
+            ※ 이 진단은 성격 검사라기보다「생각의クセ」를知るためのライトなツールです。
+        </p>
+    </div>
+
+    <script>
+        // 6つのスタイルのキー
+        const STYLE_KEYS = ["language", "visual", "symbolic", "story", "logical", "intuitive"];
+
+        // 質問 24問（各スタイル4問）
+        const questions = [
+            // 언어
+            { id: 1,  text: "내 감정과 생각은 말이나 글로 표현하면 더 정리되기 쉽습니다.", style: "language" },
+            { id: 2,  text: "설명할 때, 머릿속에서 문장을 먼저 떠올리는 편입니다.", style: "language" },
+            { id: 3,  text: "노트나 메모를 자주 쓰면서 생각을 정리합니다.", style: "language" },
+            { id: 4,  text: "새로운 아이디어는 이야기나 문장 형태로 떠오르는 경우가 많습니다.", style: "language" },
+
+            // 시각
+            { id: 5,  text: "머릿속에서 장면이나 그림이 선명하게 떠오르는 편입니다.", style: "visual" },
+            { id: 6,  text: "메모보다 다이어그램·그림·표로 정리하는 것이 이해하기 쉽습니다.", style: "visual" },
+            { id: 7,  text: "사물을 떠올릴 때, 먼저 이미지가浮かび、その後に言葉がついてきます.", style: "visual" },
+            { id: 8,  text: "지도를 보면 길을覚えやすい方です.", style: "visual" },
+
+            // 상징
+            { id: 9,  text: "하나의 물건이나 장면에서 여러 의미를 연상하게 되는 편입니다.", style: "symbolic" },
+            { id: 10, text: "비유나 은유(메타포)를 쓰는 것을 좋아합니다.", style: "symbolic" },
+            { id: 11, text: "작은 디테일에서 전체적인 의미를 읽어내는 편입니다.", style: "symbolic" },
+            { id: 12, text: "언뜻 관계없어 보이는 것들 사이의 공통점을 찾는 것이 즐겁습니다.", style: "symbolic" },
+
+            // 이야기
+            { id: 13, text: "무언가를 설명할 때, 자연스럽게『스토리』형태로 말하게 됩니다.", style: "story" },
+            { id: 14, text: "사람의 마음이나 인물의 변화를 생각하는 것을 좋아합니다.", style: "story" },
+            { id: 15, text: "영화나 소설의 장면을 오래 기억하는 편입니다.", style: "story" },
+            { id: 16, text: "자신の経験を物語のように振り返って理解することが多いです.", style: "story" },
+
+            // 논리
+            { id: 17, text: "의견을 말할 때, 근거와 이유를 함께 설명하는 편입니다.", style: "logical" },
+            { id: 18, text: "복잡한 문제를 단계별로 나누어 생각하는 것이 익숙합니다.", style: "logical" },
+            { id: 19, text: "감정보다 논리나 구조를 먼저 정리하고 싶어집니다.", style: "logical" },
+            { id: 20, text: "숫자나 데이터로 비교·검토하는 것을 부담 없이 느낍니다.", style: "logical" },
+
+            // 직관
+            { id: 21, text: "이유를 설명하기는 어렵지만『왠지 느낌이 온다』라는 것이 자주 있습니다.", style: "intuitive" },
+            { id: 22, text: "순간적인閃きでアイデアが浮かぶことが多いです.", style: "intuitive" },
+            { id: 23, text: "계획대로라기보다, 상황を見ながら柔軟に動くほうが得意です.", style: "intuitive" },
+            { id: 24, text: "공식적인 정답보다, 자신이 납得できる感覚を大事にします.", style: "intuitive" }
+        ];
+
+        // スタイル情報（結果コメント）
+        const styleInfo = {
+            language: {
+                name: "언어형 사색가 타입",
+                summary: "말과 글로 세계를 정리하는 스타일입니다. 설명, 글쓰기, 스피치에 강점을 가지기 쉽습니다.",
+                strengths: [
+                    "생각을 문장으로 정리하는 능력",
+                    "프레젠테이션·글쓰기·인터뷰 등 말하기 상황",
+                    "개념을 체계적으로 설명하는 힘"
+                ],
+                weaknesses: [
+                    "그림·도식 중심の説明が続くと少し疲れやすい",
+                    "感覚的な話だけだと焦りを感じることがある"
+                ],
+                goodWith: "논리형, 이야기형",
+                notGoodWith: "설명이 거의 없는 순수 직관형",
+                jobs: [
+                    "기획·프레젠테ーション이 많은 직무",
+                    "작가, 에디터, 마케터, 강사",
+                    "비즈니스 문서 작성이 많은 사무직"
+                ],
+                study: [
+                    "노트에 스스로 설명문을 써 보면서 정리하기",
+                    "사람에게 설명해 보는 것을 전제로 공부 계획 세우기",
+                    "요약문·한 줄 정리 등을習慣化する"
+                ],
+                dailyGood: [
+                    "일지나 메모로 하루를 언어化すると头がすっきりしやすい",
+                    "생각을 말로 나눌 수 있는 상대가 있으면 에너지가 올라가기 쉽다"
+                ],
+                dailyStress: [
+                    "말로 정리할 시간이 전혀 없는 스케줄",
+                    "애매한 지시で、言葉の定義がはっきりしない状況"
+                ]
+            },
+            visual: {
+                name: "시각형 크리에이터 타입",
+                summary: "이미지와 공간感覚で物事をつかむスタイルです。디자인, 이미지 구성, 레이아웃에 강점을 가지기 쉽습니다.",
+                strengths: [
+                    "복잡한 정보를 그림·도식으로 단순화하는 능력",
+                    "레이아웃 감각, 슬라이드 디자인",
+                    "장면 전체のバランスを見る力"
+                ],
+                weaknesses: [
+                    "文字だけの資料が長く続くと集中하기 어려움",
+                    "細かな言い回しの違いに、少し鈍く感じることがある"
+                ],
+                goodWith: "언어형, 직관형",
+                notGoodWith: "文字だけで説明が完結するスタイル",
+                jobs: [
+                    "디자이너, 프레젠테이션 제작",
+                    "건축·공간 디자인, 영상·사진 관련",
+                    "UI/UX, 인포그래픽 제작"
+                ],
+                study: [
+                    "마인드맵·도식·표でまとめる",
+                    "색ペンや付箋を使って視覚的に整理する",
+                    "教科書の図やグラフを自分で書き写してみる"
+                ],
+                dailyGood: [
+                    "방이나デスクの配置を整えると気分が安定しやすい",
+                    "ホワイトボードやメモ帳にすぐスケッチできる環境"
+                ],
+                dailyStress: [
+                    "文字びっしりの資料だけで説明される",
+                    "完成イメージを共有せずに細かい指示だけ飛んでくる状況"
+                ]
+            },
+            symbolic: {
+                name: "상징형 컨셉 메이커 타입",
+                summary: "비유와 상징を通して、目に見えない本質をつかむスタイル입니다。コンセプト作りや哲학的なテーマに向いています.",
+                strengths: [
+                    "다른もののあいだ의 共通点を見つける力",
+                    "抽象的なテーマを一つのイメージにまとめる力",
+                    "言葉やモチーフに深い意味を込めるセンス"
+                ],
+                weaknesses: [
+                    "現実的な手順や細部の調整には少し退屈しやすい",
+                    "比喩が多くなりすぎて、相手に伝わりにくくなることがある"
+                ],
+                goodWith: "논리형, 언어형",
+                notGoodWith: "細部だけを重視してコンセプトを軽視するスタイル",
+                jobs: [
+                    "브랜드·컨셉 기획, 카피라이터",
+                    "철학·문학·예술関連",
+                    "상품 컨셉設計やネーミング"
+                ],
+                study: [
+                    "배운 내용을 한 단어나 한 문장으로象徴化してみる",
+                    "비유·메타포로置き換えてノート을 정리하기",
+                    "複数の分野をまたいで共通点を探す"
+                ],
+                dailyGood: [
+                    "심볼이나 키워드を自分なりに大事にする",
+                    "日常の出来事に意味を見いだす時間をとる"
+                ],
+                dailyStress: [
+                    "意味よりもスピードや量만求められる状況",
+                    "「考えすぎ」とだけ言われてしまう環境"
+                ]
+            },
+            story: {
+                name: "스토리텔러 타입",
+                summary: "이야기와 인간ドラマを通して世界を理解するスタイルです。プレゼンや物語づくり、人の気持ちを扱う仕事に向いています.",
+                strengths: [
+                    "사람의 마음の流れを感じ取る力",
+                    "경험をストーリーとして語る力",
+                    "聞き手의 감정を動かすプレゼン"
+                ],
+                weaknesses: [
+                    "ドライな数字だけの議論にはやや退屈しやすい",
+                    "論理だけで割り切る話に抵抗を感じることがある"
+                ],
+                goodWith: "언어형, 직관형",
+                notGoodWith: "感情をあまり扱わない、極端にドライなスタイル",
+                jobs: [
+                    "カウンセラー, 코치, 교육関連",
+                    "마케팅·브랜딩, 스토리 중심のコンテンツ制作",
+                    "インタビュー, ライティング"
+                ],
+                study: [
+                    "배운 내용을『誰が・何を・なぜ・どうした』의스토리로まとめる",
+                    "실제 사례や自分の経験と結びつけて覚える",
+                    "ドラマや映画の構造を分析してみる"
+                ],
+                dailyGood: [
+                    "누군가の話をじっくり聞ける時間",
+                    "日記やSNSでストーリーとして振り返る習慣"
+                ],
+                dailyStress: [
+                    "감정을一切出してはいけない空気",
+                    "人間関係より도効率만重視される環境"
+                ]
+            },
+            logical: {
+                name: "논리형 분석가 타입",
+                summary: "구조와 근거を重視して考えるスタイルです。問題解決や計画立案에強みを持ちやすいタイプ입니다.",
+                strengths: [
+                    "複雑な問題を分解して整理する力",
+                    "근거를 갖고説明・説得する力",
+                    "計画や手順を組み立てるスキル"
+                ],
+                weaknesses: [
+                    "感情や雰囲気だけで進む話にストレスを感じやすい",
+                    "白黒がつかないグレーな領域にモヤモヤしやすい"
+                ],
+                goodWith: "언어형, 시각형",
+                notGoodWith: "논리를全く気にしない場当たり型スタイル",
+                jobs: [
+                    "기획·전략·컨설팅",
+                    "데이터 분석·리サーチ",
+                    "품질管理·프로젝트 매니지먼트"
+                ],
+                study: [
+                    "왜そうなるのか、因果関係を意識して覚える",
+                    "図やフローチャートでプロセスを整理する",
+                    "自分なりの『結論→理由』の形でノートを書く"
+                ],
+                dailyGood: [
+                    "予定やタスクをリスト化して見通しを立てる",
+                    "情報源がはっきりしたデータで判断できる環境"
+                ],
+                dailyStress: [
+                    "ルールや基準がコロコロ変わる状況",
+                    "感情だけで決まってしまう重要な判断"
+                ]
+            },
+            intuitive: {
+                name: "직관형 아이디어 메이커 타입",
+                summary: "감각と閃きで動くスタイルです。변화が多い環境や、ゼロからアイデアを出す場面에強みを持ちます.",
+                strengths: [
+                    "새로운アイデアを素早く出す力",
+                    "状況を見ながら柔軟に方向転換する力",
+                    "初対面の人や場所の雰囲気をつかむ感度"
+                ],
+                weaknesses: [
+                    "細かい手順や長期計画に飽きやすい",
+                    "なぜそう思うのか言語化するのに時間がかかることがある"
+                ],
+                goodWith: "논리형, 시각형, 스토리형",
+                notGoodWith: "すべてを細かく決めてからでないと動かないスタイル",
+                jobs: [
+                    "新規事業·スタートアップ, 크리에이ティ브職",
+                    "接客·영업など、人と場の空気を読む仕事",
+                    "브레인스토밍や企画が多いポジション"
+                ],
+                study: [
+                    "まずざっくり全体像をつかんでから細部に入る",
+                    "閃いたことをすぐメモしておき、後で整理する",
+                    "완벽を目指すより『試しにやってみる』スタイルを活かす"
+                ],
+                dailyGood: [
+                    "여유時間이少しあるスケジュール",
+                    "새로운刺激や 사람과の出会いがある環境"
+                ],
+                dailyStress: [
+                    "常に同じことだけを繰り返す単調な作業",
+                    "失敗を一切許さない空気の職場"
+                ]
+            }
+        };
+
+        // 質問レンダリング
+        function renderQuestions() {
+            const container = document.getElementById("questions");
+            container.innerHTML = "";
+            questions.forEach(q => {
+                const div = document.createElement("div");
+                div.className = "question";
+                div.innerHTML = `
+                    <div class="question-title">${q.id}. ${q.text}</div>
+                    <div class="options">
+                        <label><input type="radio" name="q${q.id}" value="5">매우 그렇다</label>
+                        <label><input type="radio" name="q${q.id}" value="4">어느 정도 그렇다</label>
+                        <label><input type="radio" name="q${q.id}" value="3">어느 쪽도 아니다</label>
+                        <label><input type="radio" name="q${q.id}" value="2">별로 그렇지 않다</label>
+                        <label><input type="radio" name="q${q.id}" value="1">전혀 그렇지 않다</label>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // スコア計算
+        function calculateScores() {
+            const rawScores = {
+                language: 0,
+                visual: 0,
+                symbolic: 0,
+                story: 0,
+                logical: 0,
+                intuitive: 0
+            };
+            const counts = {
+                language: 0,
+                visual: 0,
+                symbolic: 0,
+                story: 0,
+                logical: 0,
+                intuitive: 0
+            };
+
+            for (const q of questions) {
+                const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+                if (!selected) {
+                    alert(`질문 ${q.id} 번의 답을 선택してください.`);
+                    return null;
+                }
+                const value = Number(selected.value); // 1〜5
+                const style = q.style;
+                // 1〜5 → 0〜4 に変換して加点
+                rawScores[style] += (value - 1);
+                counts[style] += 1;
+            }
+
+            // 0〜40 スケールに正規化
+            const finalScores = {};
+            STYLE_KEYS.forEach(key => {
+                const maxRaw = counts[key] * 4; // 各質問の最大値4
+                const score = maxRaw > 0 ? Math.round(rawScores[key] / maxRaw * 40) : 0;
+                finalScores[key] = score;
+            });
+
+            return finalScores;
+        }
+
+        // 結果描画
+        function renderResult(scores) {
+            // メインタイプ決定
+            let mainKey = STYLE_KEYS[0];
+            STYLE_KEYS.forEach(k => {
+                if (scores[k] > scores[mainKey]) mainKey = k;
+            });
+            const info = styleInfo[mainKey];
+
+            document.getElementById("result-main-type").textContent =
+                info.name;
+            document.getElementById("result-summary").textContent =
+                info.summary;
+
+            // バー表示
+            const maxScore = 40;
+            function setBar(key, score) {
+                const bar = document.getElementById(`bar-${key}`);
+                const scoreSpan = document.getElementById(`score-${key}`);
+                const width = (score / maxScore) * 100;
+                bar.style.width = `${width}%`;
+                scoreSpan.textContent = score.toString();
+            }
+
+            setBar("language", scores.language);
+            setBar("visual", scores.visual);
+            setBar("symbolic", scores.symbolic);
+            setBar("story", scores.story);
+            setBar("logical", scores.logical);
+            setBar("intuitive", scores.intuitive);
+
+            // アドバイス
+            const adv = document.getElementById("advice");
+            adv.innerHTML = `
+                <h3>당신のタイプの特徴と活かし方</h3>
+                <p><strong>주요 스타일：</strong>${info.name}</p>
+                <p><strong>강점(得意になりやすいこと)</strong></p>
+                <ul>${info.strengths.map(s => `<li>${s}</li>`).join("")}</ul>
+                <p><strong>약점・注意点</strong></p>
+                <ul>${info.weaknesses.map(s => `<li>${s}</li>`).join("")}</ul>
+                <p><strong>相性が良い思考タイプ</strong>：${info.goodWith}</p>
+                <p><strong>すれ違いやすい思考タイプ</strong>：${info.notGoodWith}</p>
+                <p><strong>向いていそうな分野・職業の例</strong></p>
+                <ul>${info.jobs.map(s => `<li>${s}</li>`).join("")}</ul>
+                <p><strong>おすすめの学び方・インプット法</strong></p>
+                <ul>${info.study.map(s => `<li>${s}</li>`).join("")}</ul>
+                <p><strong>日常で感じやすいポジティブなこと</strong></p>
+                <ul>${info.dailyGood.map(s => `<li>${s}</li>`).join("")}</ul>
+                <p><strong>日常でストレスになりやすいこと</strong></p>
+                <ul>${info.dailyStress.map(s => `<li>${s}</li>`).join("")}</ul>
+            `;
+
+            document.getElementById("result").style.display = "block";
+        }
+
+        document.getElementById("calcBtn").addEventListener("click", () => {
+            const scores = calculateScores();
+            if (!scores) return;
+            renderResult(scores);
+            window.scrollTo({ top: document.getElementById("result").offsetTop - 16, behavior: "smooth" });
+        });
+
+        renderQuestions();
+    </script>
+</body>
+</html>
