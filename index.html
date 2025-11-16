@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>思考タイプ診断</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.7;
+      padding: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fafafa;
+      color: #222;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.2rem;
+    }
+    h2 {
+      font-size: 1.3rem;
+      margin-top: 1.8rem;
+      border-left: 4px solid #444;
+      padding-left: 8px;
+    }
+    h3 {
+      font-size: 1.1rem;
+      margin-top: 1.4rem;
+    }
+    .description {
+      margin-bottom: 1.4rem;
+      font-size: 0.95rem;
+    }
+    .question {
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      font-size: 0.95rem;
+    }
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin: 4px 2px 0;
+      color: #555;
+    }
+    .question-number {
+      font-weight: bold;
+      margin-right: 4px;
+    }
+    .options {
+      margin-top: 6px;
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .options label {
+      font-size: 0.8rem;
+      padding: 4px 6px;
+      border-radius: 4px;
+      background: #f2f2f2;
+      cursor: pointer;
+    }
+    button {
+      padding: 10px 18px;
+      font-size: 1rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      margin-top: 16px;
+      background: #333;
+      color: #fff;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    #result {
+      margin-top: 24px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px 14px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .result-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 0.6rem;
+    }
+    .type-label {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.9rem;
+      margin-right: 6px;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+    .type-verbal { background: #1c7ed6; }
+    .type-visual { background: #e67700; }
+    .type-intuitive { background: #0ca678; }
+    .type-narrative { background: #ae3ec9; }
+    .type-symbolic { background: #f08c00; }
+    .type-spatial { background: #495057; }
+
+    .bars-container {
+      margin-top: 10px;
+      margin-bottom: 16px;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .bar-label {
+      width: 80px;
+      font-size: 0.8rem;
+    }
+    .bar-outer {
+      flex: 1;
+      background: #f1f3f5;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 12px;
+      margin-right: 6px;
+    }
+    .bar-inner {
+      height: 100%;
+      border-radius: 999px;
+    }
+    .bar-score {
+      width: 40px;
+      font-size: 0.8rem;
+      text-align: right;
+      color: #555;
+    }
+    .section-heading {
+      font-weight: bold;
+      margin-top: 1.1rem;
+      margin-bottom: 0.2rem;
+      font-size: 1rem;
+    }
+    .footer-note {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+      .bar-label {
+        width: 68px;
+        font-size: 0.75rem;
+      }
+      .bar-score {
+        width: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>思考タイプ診断（プロトタイプ）</h1>
+  <div class="description">
+    直感ではなく、<strong>「どんなふうに物事を考えやすいか」</strong>に注目した思考タイプ診断です。<br>
+    気楽に、<strong>今の自分に一番近いもの</strong>を選んでください。深く考えすぎなくて大丈夫です。
+  </div>
+
+  <div id="question-section"></div>
+
+  <button id="submit-btn">診断する</button>
+
+  <div id="result" style="display:none;"></div>
+
+  <div class="footer-note">
+    ※この診断は、性格を決めつけるものではなく、<strong>「自分の考え方のクセ」を客観的に知るための参考情報</strong>です。<br>
+    当てはまらない部分があっても問題ありません。気になるところだけ拾ってみてください。
+  </div>
+
+  <script>
+    // タイプ定義
+    const TYPES = [
+      "verbal",   // 言語
+      "visual",   // 視覚
+      "intuitive",// 直感
+      "narrative",// 物語
+      "symbolic", // 象徴
+      "spatial"   // 空間
+    ];
+
+    const TYPE_LABELS = {
+      verbal: "言語思考",
+      visual: "視覚思考",
+      intuitive: "直感思考",
+      narrative: "物語思考",
+      symbolic: "象徴思考",
+      spatial: "空間思考"
+    };
+
+    const TYPE_CLASS = {
+      verbal: "type-verbal",
+      visual: "type-visual",
+      intuitive: "type-intuitive",
+      narrative: "type-narrative",
+      symbolic: "type-symbolic",
+      spatial: "type-spatial"
+    };
+
+    const BAR_COLORS = {
+      verbal: "#1c7ed6",
+      visual: "#f08c00",
+      intuitive: "#0ca678",
+      narrative: "#ae3ec9",
+      symbolic: "#e8590c",
+      spatial: "#495057"
+    };
+
+    // 質問（各タイプ6問・全36問）
+    const questions = [
+      // 言語思考
+      { text: "イメージよりも、言葉で考えたほうが整理しやすいと感じます。", type: "verbal" },
+      { text: "考えをまとめるとき、まずメモや文章に書き出したくなります。", type: "verbal" },
+      { text: "会話の中で「つまりこういうこと？」と要約したくなります。", type: "verbal" },
+      { text: "図やイラストよりも、言葉で丁寧に説明してもらうほうが理解しやすいです。", type: "verbal" },
+      { text: "言い回しや言葉選びにこだわるほうだと思います。", type: "verbal" },
+      { text: "自分の気持ちを、文章にすると落ち着きます。", type: "verbal" },
+
+      // 視覚思考
+      { text: "説明だけよりも、図やイメージがあると一気に理解しやすくなります。", type: "visual" },
+      { text: "新しい場所に行くと、まず全体の景色やレイアウトを無意識に眺めてしまいます。", type: "visual" },
+      { text: "色・デザイン・配置など、見た目のバランスがとても気になります。", type: "visual" },
+      { text: "頭の中で、会話や出来事が「映像」や「シーン」として浮かびやすいです。", type: "visual" },
+      { text: "ノートやメモは、文字だけよりも図・マーカー・囲みなどを使いたくなります。", type: "visual" },
+      { text: "お店や部屋の雰囲気が、自分の気分に大きく影響するほうです。", type: "visual" },
+
+      // 直感思考
+      { text: "細かい説明を聞く前に、「なんとなくこうなりそう」と感覚でわかることがあります。", type: "intuitive" },
+      { text: "理由は説明しにくいけれど、直感的に良し悪しを判断してしまうことが多いです。", type: "intuitive" },
+      { text: "ひらめきや思いつきで動いて、うまくいくことがあります。", type: "intuitive" },
+      { text: "先の展開や、場の雰囲気の変化に早めに気づくほうだと思います。", type: "intuitive" },
+      { text: "完璧に準備しなくても、とりあえずやってみて考えるタイプです。", type: "intuitive" },
+      { text: "「説明は後でいいから、とりあえずやってみよう」と思うことがあります。", type: "intuitive" },
+
+      // 物語思考
+      { text: "出来事を「ストーリー」として覚えたり、人に話したりすることが多いです。", type: "narrative" },
+      { text: "自分や人の経験を、つい「物語」として組み立てて考えてしまいます。", type: "narrative" },
+      { text: "エピソードや感情の流れに共感しやすいほうです。", type: "narrative" },
+      { text: "人の話を聞くとき、事実より「その人がどう感じたか」が気になります。", type: "narrative" },
+      { text: "わかりやすく説明するとき、自然と例え話やストーリーを使ってしまいます。", type: "narrative" },
+      { text: "映画・ドラマ・小説などのストーリーに、強く感情移入することがあります。", type: "narrative" },
+
+      // 象徴思考
+      { text: "出来事や言葉の「裏にある意味」が気になることが多いです。", type: "symbolic" },
+      { text: "一見関係なさそうなもの同士の共通点や象徴性を考えるのが好きです。", type: "symbolic" },
+      { text: "言葉どおりよりも、「本当に言いたいこと」を読み取りたいと思います。", type: "symbolic" },
+      { text: "哲学・心理・宗教・物語の背景など、「意味」や「本質」に興味があります。", type: "symbolic" },
+      { text: "自分なりの価値観や世界観を大事にしているほうです。", type: "symbolic" },
+      { text: "偶然の出来事にも、どこか意味があるように感じることがあります。", type: "symbolic" },
+
+      // 空間思考
+      { text: "部屋やお店の「レイアウト」や「動線」が気になります。", type: "spatial" },
+      { text: "人との距離感や、座る位置・立ち位置を無意識に選んでしまいます。", type: "spatial" },
+      { text: "散らかった部屋や通りにくい配置だと、落ち着かないと感じます。", type: "spatial" },
+      { text: "地図や間取り図を見るのは、比較的得意なほうです。", type: "spatial" },
+      { text: "「どこに何を置くか」で、場の空気が変わると感じます。", type: "spatial" },
+      { text: "自分のペースで動ける空間だと、心も落ち着きます。", type: "spatial" }
+    ];
+
+    // 質問レンダリング
+    const questionSection = document.getElementById("question-section");
+
+    function renderQuestions() {
+      let html = "";
+      questions.forEach((q, index) => {
+        html += `
+          <div class="question">
+            <div>
+              <span class="question-number">Q${index + 1}.</span>
+              <span>${q.text}</span>
+            </div>
+            <div class="scale-labels">
+              <span>まったく当てはまらない</span>
+              <span>どちらでもない</span>
+              <span>とても当てはまる</span>
+            </div>
+            <div class="options">
+              <label><input type="radio" name="q${index}" value="1"> 1</label>
+              <label><input type="radio" name="q${index}" value="2"> 2</label>
+              <label><input type="radio" name="q${index}" value="3"> 3</label>
+              <label><input type="radio" name="q${index}" value="4"> 4</label>
+              <label><input type="radio" name="q${index}" value="5"> 5</label>
+            </div>
+          </div>
+        `;
+      });
+      questionSection.innerHTML = html;
+    }
+
+    renderQuestions();
+
+    // タイプごとの基本説明（ベース部分）
+    const TYPE_BASE = {
+      verbal: {
+        label: "言語思考",
+        summary: "ことばで考え、整理し、理解することが得意なタイプです。頭の中でモヤモヤしていることも、文章にしたり、口に出して説明したりすることで一気にクリアになります。",
+        pattern: "会話の中では「つまり〜ってこと？」と要約したくなりがちで、物事の筋道や論理を整えようとします。細かいニュアンスや言葉の選び方にも敏感で、その分だけ誤解を恐れやすい面もあります。",
+        stress: "場の空気だけで話が進んだり、「なんとなく」で決まってしまう状況が続くとストレスを感じやすくなります。一方で、情報や意見を落ち着いて整理できる場では、安心感と充実感を覚えやすいタイプです。",
+        love: "恋愛では、気持ちや状況をきちんと言葉にしてくれる相手に安心しやすく、また自分も丁寧に説明したくなります。言葉が多くなりすぎて、相手が「難しく感じる」ときもあるため、ときどき説明をシンプルにする意識が役立ちます。",
+        job: "文章を書く仕事、企画・会議の整理役、説明・ファシリテーション、マニュアル作り、事務・秘書、編集・ライターなど、言葉で構造を作る仕事に向きやすいタイプです。",
+        study: "ノートをまとめる、要約する、自分の言葉で説明してみる、といった学び方と相性が良いです。インプットだけで終わらせず、「一度アウトプットしてみる」ことで理解が定着しやすくなります。"
+      },
+      visual: {
+        label: "視覚思考",
+        summary: "目で見て理解することが得意なタイプです。言葉だけの説明よりも、図・レイアウト・色・配置などの視覚的な情報が加わると、理解スピードが一気に上がります。",
+        pattern: "頭の中では、出来事や会話が「映像」や「シーン」として浮かびやすく、ノートも文字だけでなく線・図・囲み・色分けなどで整理したくなります。空間の雰囲気や、デザインの良し悪しにも自然と目が行きます。",
+        stress: "雑然とした環境や、情報が文字だけに詰め込まれている状態だと疲れやすくなります。一方で、見通しの良い資料や、スッキリした空間の中では、落ち着いて集中しやすいタイプです。",
+        love: "恋愛では、「どこで」「どんな雰囲気で」過ごすかが印象に強く残りやすく、一緒に見る景色や空間の美しさを共有できる相手に惹かれやすい傾向があります。身だしなみや所作など、見た目のバランスにも自然と意識が向きます。",
+        job: "デザイン、写真、映像、プレゼン資料作成、UI・UX、空間づくり、アパレル・美容など、「見た目」や「見え方」が価値になる仕事に向きやすいタイプです。",
+        study: "図で整理する、マインドマップを描く、色分けをする、イラストを添えるなど、視覚化する学び方と相性が良いです。文字だらけの情報は、まず自分なりの図に置き換えてから理解すると力を発揮しやすくなります。"
+      },
+      intuitive: {
+        label: "直感思考",
+        summary: "全体の流れや未来の雰囲気を素早くつかむタイプです。細かい条件を全部確認しなくても、「なんとなくこっちが良さそう」と判断し、動きながら微調整していくことができます。",
+        pattern: "理由をあとから言語化することが多く、「とりあえずやってみてから考える」という進め方になりがちです。先回りして空気を読むので、変化に対応する場面では特に力を発揮します。",
+        stress: "説明や根拠を細かく求められ続けると、動きにくさや窮屈さを感じやすくなります。一方で、試してみる余地があり、失敗しても調整できる環境では、直感の鋭さが大きな強みになります。",
+        love: "恋愛では、「この人とは波長が合う」「なんとなく一緒にいて楽」といった感覚がとても大切になります。相手からすると、気持ちの動きが速く見えることもあるため、ときどき言葉で共有してあげると関係が安定しやすくなります。",
+        job: "変化の多い現場、企画・アイデア出し、新規プロジェクト、接客や営業など、「その場で判断しながら動く仕事」に向きやすいタイプです。",
+        study: "完璧な準備よりも、まず軽く全体像をつかんでから、気になったところを深掘りする学び方と相性が良いです。いきなり細部から入るより、「ざっくり→試す→調整」のサイクルが合っています。"
+      },
+      narrative: {
+        label: "物語思考",
+        summary: "出来事や人の心の動きを、ストーリーとして理解するタイプです。同じ事実でも、「そのとき何が起きて、誰がどう感じたのか」という流れで捉えるのが自然です。",
+        pattern: "人の話を聞くときも、情報だけでなく、その人の背景やエピソードに強く意識が向きます。自分の経験も、後から振り返って「一つの物語」として解釈し直すことが多いタイプです。",
+        stress: "気持ちの流れを無視して事務的に処理される場面や、「理由はいいから結果だけ」と切り捨てられる状況では、モヤモヤや悲しさを感じやすくなります。一方で、物語や経験を大切に扱う環境では、生きた理解を広げていけるタイプです。",
+        love: "恋愛では、出会いから今までの経緯や共有した出来事など、その関係のストーリーを大切にします。相手の背景や価値観を丁寧に知ろうとする一方、自分の気持ちも物語として伝えたくなる傾向があります。",
+        job: "カウンセリング、教育、インタビュー、ライティング、映像・ドラマ制作、接客・サービス業など、「人のストーリー」に触れる仕事に向きやすいタイプです。",
+        study: "暗記だけで覚えるよりも、「なぜそうなったのか」「どんな背景があるのか」といったストーリーとセットで理解すると力を発揮します。歴史や事例、ケーススタディと組み合わせた学び方が特に有効です。"
+      },
+      symbolic: {
+        label: "象徴思考",
+        summary: "表に出ているものの少し奥にある「意味」や「本質」に自然と目が向くタイプです。出来事や言葉、モノや行動に、どんな象徴性があるのかを考えることが多くなります。",
+        pattern: "一見関係なさそうに見えるもの同士の共通点や、価値観の背景にある思想を考えるのが好きで、抽象度の高いテーマも苦になりません。そのぶん、日常会話では少し考えすぎに見えることもあります。",
+        stress: "表面的なノリだけで話が流れてしまったり、「意味なんて考えなくていい」と切り捨てられる環境ではフラストレーションを感じやすくなります。一方で、価値観や世界観について静かに語れる場では、深い満足感を覚えるタイプです。",
+        love: "恋愛では、ただ一緒に楽しく過ごすだけでなく、「この関係にどんな意味があるのか」「どこに向かっているのか」を考えがちです。抽象的な話にも付き合ってくれる相手や、価値観の深い部分で共鳴できる相手に惹かれやすくなります。",
+        job: "企画・コンセプト設計、ブランディング、哲学・宗教・心理関連、アートや物語の解釈、編集・批評など、「意味」や「世界観」を扱う領域に向きやすいタイプです。",
+        study: "細かいテクニックから入るよりも、まず「この分野の本質は何か」「全体像はどうなっているか」を押さえてから学ぶほうが理解しやすくなります。自分なりのキーワードや象徴的な言葉でまとめると定着しやすくなります。"
+      },
+      spatial: {
+        label: "空間思考",
+        summary: "距離感・配置・動線・空気感など、空間に関する感覚が鋭いタイプです。人や物がどこにあり、どう動くかによって、場の雰囲気が大きく変わることを自然に感じ取ります。",
+        pattern: "座る位置や立ち位置、家具や物の配置などに無意識にこだわりが出やすく、「ここは通りづらい」「ここにいると落ち着く」といった感覚で判断します。地図や間取り図など、立体的な情報にも比較的強い傾向があります。",
+        stress: "散らかった空間、動線の悪いレイアウト、常に人が近くを通るような環境では、集中しにくさや落ち着かなさを感じやすくなります。一方で、余白があり、動きやすい空間では自然と気持ちも整いやすいタイプです。",
+        love: "恋愛では、一緒に過ごす「場所」や「距離感」がとても重要になります。無理に近づきすぎず、ほどよい距離でそばにいてくれる相手や、一緒に心地よい空間を作ろうとしてくれる相手と相性が良くなりやすいです。",
+        job: "インテリア・建築・空間デザイン、店舗づくり、展示・ステージ演出、体を使う仕事（スポーツ・ダンス・ボディワーク）など、「空間」そのものを扱う仕事に適性が出やすいタイプです。",
+        study: "静かで整った場所を選んで勉強する、図やレイアウトで整理する、実際に手や体を動かしながら覚えるといった学び方と相性が良いです。同じ場所でずっと勉強するより、気分や課題によって場所を変えるのも有効です。"
+      }
+    };
+
+    // サブタイプ（第2位）の補足テキスト
+    function buildSubTypeText(main, sub) {
+      if (main === sub) {
+        return "特に一つの思考タイプが強く出ているため、「" + TYPE_LABELS[main] + "特化型」とも言えます。同じタイプの中でも、どこまで深く使い込むか・どれだけ日常の多くの場面でその思考を使っているかによって、濃さには個人差があります。";
+      }
+      const mainLabel = TYPE_LABELS[main];
+      const subLabel = TYPE_LABELS[sub];
+      let text = "今回の診断では、もっとも強く出ているのが「" + mainLabel + "」、次に高かったのが「" + subLabel + "」でした。";
+      text += mainLabel + "を土台にしつつ、" + subLabel + "の要素も一緒に使うことで、考え方に独自のクセや強みが生まれます。";
+
+      // 簡単な組み合わせコメント
+      if (main === "verbal" && sub === "visual" || main === "visual" && sub === "verbal") {
+        text += " 言葉とイメージの両方を行き来できるため、「説明もデザインもそこそこできる橋渡し役」になりやすい組み合わせです。";
+      } else if (main === "verbal" && sub === "narrative" || main === "narrative" && sub === "verbal") {
+        text += " 整理されたストーリーを組み立てることが得意で、プレゼンや文章で、人の心に届く説明がしやすいタイプです。";
+      } else if (main === "visual" && sub === "spatial" || main === "spatial" && sub === "visual") {
+        text += " 見た目と空間の両方に敏感で、「雰囲気の良さ」や「居心地の良さ」を具体的な形に落とし込むことができます。";
+      } else if (main === "symbolic" && sub === "narrative" || main === "narrative" && sub === "symbolic") {
+        text += " 物語の裏にある意味やテーマを掘り下げることが得意で、深みのある表現や解釈をしやすい組み合わせです。";
+      } else if (main === "intuitive" && sub === "spatial" || main === "spatial" && sub === "intuitive") {
+        text += " 場の空気や流れを素早くつかみ、その場に合った動きを直感的に選びやすい組み合わせです。";
+      } else if (main === "intuitive" && sub === "verbal" || main === "verbal" && sub === "intuitive") {
+        text += " ひらめきを言葉で素早くまとめることができ、アイデア出しから整理まで一気に進めやすいタイプです。";
+      } else {
+        text += " 二つの思考タイプが同時に働くことで、「" + mainLabel + "だけの人」とは違う柔らかさや応用力が出てきます。";
+      }
+
+      return text;
+    }
+
+    // 結果テキスト生成
+    function generateResultText(mainType, subType, scores) {
+      const base = TYPE_BASE[mainType];
+      const mainLabel = TYPE_LABELS[mainType];
+      const subLabel = TYPE_LABELS[subType];
+
+      // ディープ・ミドル・ライト感（ざっくり）
+      const scoreValues = Object.values(scores);
+      const maxScore = Math.max.apply(null, scoreValues);
+      const totalPerTypeMax = 5 * 6; // 各タイプ最高30点
+      let depthText = "";
+      if (maxScore >= totalPerTypeMax * 0.8) {
+        depthText = "今回の結果では、「" + mainLabel + "」の比率がかなり高く、日常のさまざまな場面でこの考え方が強く働いている「ディープ寄り」の傾向が見られます。";
+      } else if (maxScore >= totalPerTypeMax * 0.55) {
+        depthText = "「" + mainLabel + "」ははっきり強めですが、他のタイプもある程度バランスよく働いている「ミドル」寄りの傾向と言えます。";
+      } else {
+        depthText = "「" + mainLabel + "」は穏やかに出ている程度で、他のタイプとのバランスも比較的フラットな「ライト」寄りの傾向です。";
+      }
+
+      const subText = buildSubTypeText(mainType, subType);
+
+      let html = "";
+
+      // あなたのタイプ（タイトル部分は外側で出す）
+      html += `<div class="section-heading">タイプの本質</div>`;
+      html += `<p>${base.summary}</p>`;
+      html += `<p>${depthText}</p>`;
+      html += `<p>${subText}</p>`;
+
+      html += `<div class="section-heading">よくある口癖・思考パターンと、誤解されやすい点</div>`;
+      html += `<p>${base.pattern}</p>`;
+
+      html += `<div class="section-heading">日常で感じやすいストレスと、満足しやすい場面</div>`;
+      html += `<p>${base.stress}</p>`;
+
+      html += `<div class="section-heading">恋愛傾向</div>`;
+      html += `<p>${base.love}</p>`;
+
+      html += `<div class="section-heading">向いている職業のヒント</div>`;
+      html += `<p>${base.job}</p>`;
+
+      html += `<div class="section-heading">相性の良い学び方</div>`;
+      html += `<p>${base.study}</p>`;
+
+      html += `<p style="margin-top:1.2rem;font-size:0.85rem;color:#666;">※あくまで「傾向」のため、すべてが当てはまる必要はありません。しっくり来る部分だけ今後の参考にしてみてください。</p>`;
+
+      return html;
+    }
+
+    // 結果表示
+    const submitBtn = document.getElementById("submit-btn");
+    const resultDiv = document.getElementById("result");
+
+    submitBtn.addEventListener("click", () => {
+      const scores = {
+        verbal: 0,
+        visual: 0,
+        intuitive: 0,
+        narrative: 0,
+        symbolic: 0,
+        spatial: 0
+      };
+
+      // 回答チェック
+      for (let i = 0; i < questions.length; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (!selected) {
+          alert(`Q${i + 1} が未回答です。すべての質問に答えてから診断してください。`);
+          return;
+        }
+        const value = Number(selected.value);
+        const t = questions[i].type;
+        scores[t] += value;
+      }
+
+      // スコア配列化
+      const scoreArray = TYPES.map(type => ({
+        type,
+        label: TYPE_LABELS[type],
+        score: scores[type]
+      }));
+
+      // スコアの高い順にソート
+      scoreArray.sort((a, b) => b.score - a.score);
+
+      const mainType = scoreArray[0].type;
+      // 2位が0点などの極端なケースはほぼ無いが、一応分岐
+      let subType = scoreArray[1] ? scoreArray[1].type : mainType;
+
+      // 2位との点差が小さいほど「複合タイプ感」が強い
+      const mainScore = scoreArray[0].score;
+      const secondScore = scoreArray[1].score;
+
+      // もし2位がかなり離れていれば、サブも同じタイプ扱いにしてしまう
+      if (mainScore - secondScore >= 10) {
+        subType = mainType;
+      }
+
+      // 棒グラフ用
+      const maxScore = Math.max(...scoreArray.map(s => s.score)) || 1;
+
+      let barsHtml = `<div class="bars-container">`;
+      scoreArray.forEach(s => {
+        const widthPercent = Math.max(8, (s.score / maxScore) * 100); // 最低幅8%
+        barsHtml += `
+          <div class="bar-row">
+            <div class="bar-label">${s.label}</div>
+            <div class="bar-outer">
+              <div class="bar-inner" style="width:${widthPercent}%; background:${BAR_COLORS[s.type]};"></div>
+            </div>
+            <div class="bar-score">${s.score}</div>
+          </div>
+        `;
+      });
+      barsHtml += `</div>`;
+
+      const mainLabel = TYPE_LABELS[mainType];
+      const subLabel = TYPE_LABELS[subType];
+
+      // タイトル部分
+      let titleHtml = `
+        <div class="result-title">診断結果</div>
+        <div style="margin-bottom:0.4rem;font-size:0.95rem;">あなたの思考タイプ（上位2つ）は、次のとおりです。</div>
+        <div style="margin-bottom:0.6rem;">
+          <span class="type-label ${TYPE_CLASS[mainType]}">第1位：${mainLabel}</span>
+          <span class="type-label ${TYPE_CLASS[subType]}">第2位：${subLabel}</span>
+        </div>
+        <div style="font-size:0.95rem;margin-bottom:0.8rem;">
+          この診断では、もっとも強く出ているタイプを「メイン」、次に高いタイプを「サブ」として、
+          <strong>「${mainLabel} × ${subLabel}」タイプ</strong>として説明します。
+        </div>
+      `;
+
+      const detailHtml = generateResultText(mainType, subType, scores);
+
+      resultDiv.style.display = "block";
+      resultDiv.innerHTML = titleHtml + barsHtml + detailHtml;
+      resultDiv.scrollIntoView({ behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
