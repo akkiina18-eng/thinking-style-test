@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>思考タイプ診断テスト</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f5f3ef;
+      --card-bg: #ffffff;
+      --accent: #334155;
+      --accent-soft: #64748b;
+      --border-soft: #e2e0db;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --highlight: #c9a76c;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 16px 40px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans",
+        "Yu Gothic", "Noto Sans JP", sans-serif;
+      background: radial-gradient(circle at top, #fdfbf7 0, #f5f3ef 50%, #ede9e0 100%);
+      color: var(--text-main);
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 24px 20px 26px;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 40px 24px 64px;
+      }
+      .card {
+        padding: 28px 28px 30px;
+      }
+    }
+
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 10px;
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+    }
+
+    .card-note {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+    }
+
+    .question-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      font-size: 0.75rem;
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    @media (min-width: 900px) {
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+        gap: 24px;
+      }
+    }
+
+    /* 質問エリア */
+
+    #question-area {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-soft);
+      padding: 16px 14px 18px;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.96),
+        rgba(249, 248, 244, 0.96)
+      );
+    }
+
+    @media (min-width: 768px) {
+      #question-area {
+        padding: 18px 18px 20px;
+      }
+    }
+
+    #questions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 460px;
+      overflow-y: auto;
+      padding-right: 4px;
+      scroll-behavior: smooth;
+    }
+
+    .question-card {
+      padding: 10px 10px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(226, 224, 219, 0.9);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .question-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .question-index {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      margin-right: 6px;
+    }
+
+    .options {
+      display: grid;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .option-label {
+      font-size: 0.85rem;
+      padding: 4px 6px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.06s ease;
+    }
+
+    .option-label:hover {
+      background: rgba(226, 232, 240, 0.6);
+      transform: translateY(-0.5px);
+    }
+
+    .option-label input {
+      accent-color: var(--accent);
+    }
+
+    .option-text {
+      padding-top: 1px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .controls-left {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+    }
+
+    .controls-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+    }
+
+    /* 結果エリア */
+
+    #result-area {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-soft);
+      padding: 16px 14px 18px;
+      background: linear-gradient(
+        135deg,
+        rgba(15, 23, 42, 0.02),
+        rgba(15, 23, 42, 0.04)
+      );
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      #result-area {
+        padding: 18px 18px 20px;
+      }
+    }
+
+    #result-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    #result-type {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    #result-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    /* 横棒グラフ */
+
+    #result-bars {
+      margin-top: 4px;
+      margin-bottom: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 38px;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+
+    .bar-label {
+      color: var(--text-sub);
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      position: relative;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.25);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(
+        90deg,
+        var(--accent),
+        rgba(51, 65, 85, 0.3)
+      );
+      transition: width 0.45s ease;
+    }
+
+    .bar-value {
+      text-align: right;
+      font-feature-settings: "tnum" 1, "lnum" 1;
+      color: var(--text-sub);
+    }
+
+    #result-text {
+      font-size: 0.86rem;
+      line-height: 1.7;
+      color: #111827;
+      white-space: pre-wrap;
+    }
+
+    #result-placeholder {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .hint {
+      font-size: 0.76rem;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="title">Thinking Style Test</div>
+      <div class="subtitle">あなたの思考タイプをそっと可視化する診断</div>
+    </header>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-row">
+          <div class="card-title">思考タイプ診断</div>
+          <div class="card-note">所要時間の目安：3〜5分</div>
+        </div>
+        <div class="question-meta">
+          <span class="badge">質問数：24問</span>
+          <span class="badge">タイプ：6種類（言語・視覚・直感・物語・象徴・空間）</span>
+        </div>
+      </div>
+
+      <div class="layout">
+        <!-- 質問エリア -->
+        <section id="question-area">
+          <div id="questions"></div>
+          <div class="controls">
+            <div class="controls-left">
+              <span id="progress-text">0 / 24 問回答済み</span>
+            </div>
+            <div class="controls-right">
+              <button type="button" id="reset-btn" class="btn-ghost">リセット</button>
+              <button type="button" id="submit-btn" class="btn-primary" disabled>診断結果を見る</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 結果エリア -->
+        <section id="result-area">
+          <div id="result-title">RESULT</div>
+          <div id="result-type">まだ診断は完了していません。</div>
+          <div id="result-subtitle">
+            質問にすべて回答すると、ここにあなたの思考タイプと解説が表示されます。
+          </div>
+
+          <div id="result-bars"></div>
+
+          <div id="result-placeholder">
+            ・上位2つの思考タイプの組み合わせ  
+            ・6タイプのバランスを示す横棒グラフ  
+            ・あなたの本質／人間関係／ストレス／怒り方／充実感  
+            ・恋愛傾向／向いている職業／学び方／他タイプとのシナジー  
+            などをまとめて表示します。
+          </div>
+          <div id="result-text" style="display:none;"></div>
+
+          <div class="hint">
+            ※ この診断はあくまで自己理解のきっかけとしてお使いください。  
+            結果に正解・不正解はありません。
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 6タイプ定義
+    const types = [
+      { key: "verbal", label: "言語" },
+      { key: "visual", label: "視覚" },
+      { key: "intuitive", label: "直感" },
+      { key: "narrative", label: "物語" },
+      { key: "symbolic", label: "象徴" },
+      { key: "spatial", label: "空間" }
+    ];
+
+    // 各タイプのプロファイル（日本語説明の素材）
+    const typeProfiles = {
+      verbal: {
+        name: "言語思考",
+        core: "あなたは、世界をまず「言葉」でとらえ、意味や定義、理由を整理しながら考えるタイプです。あいまいなまま進むことが苦手で、「それはどういう意味ですか？」「つまりこういうことですか？」と確認したくなります。",
+        pattern: "会話の中で無意識に言葉遣いや論理の筋道に目がいきます。「ちゃんと言葉にしたい」「一度整理してから話したい」が口癖になりやすいタイプです。",
+        misunderstood: "説明が丁寧なあまり、相手には「細かい」「厳しい」と誤解されてしまうことがあります。本当は丁寧に向き合おうとしているだけなのに、相手には“詰められている”ように感じられてしまうこともあります。",
+        stress: "言っていることとやっていることが違う場面や、約束やルールが軽く扱われる状況に強いストレスを感じやすいです。理由が共有されない変更や、場当たり的な指示も負担になりやすい傾向があります。",
+        anger: "怒ったときは声を荒らげるよりも、逆に冷静になり、言葉が鋭く正確になります。論点を整理して静かに指摘するため、周囲にはいつも以上に怖く見えることがあります。",
+        fulfillment: "自分の言葉で誰かが「なるほど」と納得してくれたときや、考えをきれいに整理できたときに大きな充実感を覚えます。文章やメモがきれいにまとまった瞬間も、あなたにとっては小さな幸福です。",
+        romance: "恋愛では、気持ちをきちんと言葉にしてくれる相手に安心します。「なんとなく」ではなく、理由や背景を含めて話してくれる人に惹かれやすいタイプです。愛情表現も、ひと言の「好き」だけでなく「どこが、なぜ好きなのか」とセットで受け取ると、心が満たされやすくなります。",
+        jobs: "情報を整理し、わかりやすく言語化することに強みがあります。ライター・編集者・企画職・マーケティング・講師・カウンセラーなど、言葉を扱う仕事全般と相性が良いタイプです。",
+        learning: "学習では、まず全体の概要よりも「用語の定義」「ルール」「例文」といった言語情報から入ると理解が進みます。そのうえで、自分の言葉で説明し直したり、ノートに書き起こしたりすることで、知識が定着しやすくなります。"
+      },
+      visual: {
+        name: "視覚思考",
+        core: "あなたは、世界を「形・配置・イメージ」としてとらえるタイプです。説明を聞くときも、頭の中では図やレイアウトのようなイメージが組み上がっていきます。",
+        pattern: "図やメモ、レイアウトを見るとすぐに「ここをこう動かしたらもっと見やすい」と感じることが多く、感覚的に構図の良し悪しを判断します。「イメージで考えたい」「絵で見たほうが早い」が口癖になりやすいタイプです。",
+        misunderstood: "頭の中でははっきりイメージできていても、それを言葉にするときにうまく伝えられず、「なんとなく」「こんな感じ」と表現してしまい、曖昧だと誤解されることがあります。",
+        stress: "情報がバラバラに提示されて整理されていないときや、見た目のレイアウトがぐちゃぐちゃな状態にストレスを感じやすいです。やるべきことが視覚的に整理されていないと、頭の中も落ち着きません。",
+        anger: "怒ったときは、表情や態度に出やすいタイプです。言葉で強く責めるよりも、距離を取ったり、視線や雰囲気で不快感を示してしまうことが多いかもしれません。",
+        fulfillment: "きれいな配置が決まったときや、図解やレイアウトがしっくり来たときに大きな満足感を覚えます。空間の整頓やデザインがうまくいった瞬間、「よし」と静かにテンションが上がります。",
+        romance: "恋愛では、雰囲気や所作、さりげない仕草に惹かれやすいタイプです。言葉だけでなく、表情・服装・空気感など「目に見えるもの」を通して相手を好きになっていきます。デートの場所や景色、写真に残したくなる瞬間を大切にしたいと感じやすいでしょう。",
+        jobs: "デザイン・イラスト・写真・映像・UI/UX・資料作成など、視覚的に表現する仕事と相性が良いです。また、プレゼン資料やホワイトボードを使った説明などでも才能を発揮しやすいタイプです。",
+        learning: "学習では、文字だけでなく図・チャート・マインドマップなどを組み合わせると理解が進みます。ノートを「きれいにまとめる」ことがそのまま理解の深さにもつながりやすいタイプです。"
+      },
+      intuitive: {
+        name: "直感思考",
+        core: "あなたは、「言葉になる前の感覚」や「なんとなくの違和感・しっくり感」をとても大事にするタイプです。細かく分析する前に、まず全体の雰囲気や流れから本質をつかもうとします。",
+        pattern: "説明を最後まで聞く前に「だいたいわかった」と感じることが多く、「感覚的にはこう思う」「うまく言えないけれど」が口癖になりやすいタイプです。",
+        misunderstood: "理由をうまく説明できないまま結論だけを口にすると、「根拠がない」「適当」と誤解されることがあります。本当は、かなり深いところで状況をつかんでいても、それを言語化する前に動いてしまうため、周囲とのズレが生まれやすい傾向があります。",
+        stress: "自分の感覚を無視して進めなければならない状況や、細かいルールや手順に縛られすぎるときにストレスを感じやすいです。「本当にこれでいいのか？」という違和感を押し込め続けると、心身ともに消耗していきます。",
+        anger: "怒ったときは、言葉よりも態度や空気感で不満がにじみ出ます。自分でも「なぜここまでイライラしているのか」が言語化しづらく、モヤモヤだけが大きくなることがあります。",
+        fulfillment: "自分のひらめきがうまく形になったときや、「あのときの直感は合っていた」と確信できたときに、大きな充実感を覚えます。誰かの話を聞きながら本質を言い当てたときも、心地よい感覚を味わいやすいタイプです。",
+        romance: "恋愛では、条件よりも「この人と一緒にいるときの感覚」を何より重視します。会話の内容より、沈黙のときに落ち着くかどうか、ふとした瞬間の空気感が心地良いかどうかで相手への気持ちが決まりやすいタイプです。",
+        jobs: "変化が速く、正解が一つに決まらない分野で力を発揮しやすいです。新規事業・企画・クリエイティブ・カウンセリング・コーチング・問題解決系の仕事など、「パターン認識」と「感覚的な判断」が活きる場面に強みがあります。",
+        learning: "学習では、細部から入るよりも、まず全体像やざっくりしたイメージをつかむと理解が進みます。そのうえで、自分なりの“しっくりくる言葉”でまとめ直すと、知識が一気につながりやすくなります。"
+      },
+      narrative: {
+        name: "物語思考",
+        core: "あなたは、出来事を「ストーリー」としてとらえるタイプです。誰かの行動を見たとき、その背景や過去、気持ちの流れを想像せずにはいられません。",
+        pattern: "説明するときも、「まずこういう出来事があって……」と時系列やエピソードで話すことが多く、「たとえば」「昔こんなことがあって」が口癖になりやすいタイプです。",
+        misunderstood: "話が少し遠回りに感じられたり、結論よりも経緯を丁寧に語るため、「話が長い」「結論から言って」と言われてしまうことがあります。",
+        stress: "数字や成果だけで評価され、人の気持ちやプロセスが軽く扱われる状況にストレスを感じやすいです。また、人の事情を想像しすぎて、自分の感情を後回しにしてしまうこともあります。",
+        anger: "怒ったときは、過去の出来事や積み重なった感情を一気に思い出し、「あのときもそうだった」と物語として怒りが膨らみやすいタイプです。感情が一定ラインを超えると、涙として表に出ることもあります。",
+        fulfillment: "誰かの物語をじっくり聞けたときや、自分の経験が誰かの役に立ったと感じたときに、大きな充実感を覚えます。本や映画・ドラマなどに深く共感し、「この登場人物の気持ちがわかる」と感じた瞬間も、あなたにとって大切な時間です。",
+        romance: "恋愛では、相手の人生や背景に強く惹かれます。「どんな環境で育ってきたのか」「何を大切に生きてきたのか」を知るほど、相手への思いが深まるタイプです。記念日や思い出の場所など、二人だけの物語を大切にしたいと感じやすいでしょう。",
+        jobs: "人の経験や物語に寄り添う仕事と相性が良いです。カウンセラー・コーチ・看護・教育・人事・広報・インタビュー・物語を書く仕事など、「ストーリー」を扱う分野で力を発揮しやすいタイプです。",
+        learning: "学習では、単なる知識として覚えるよりも、「誰が、どんな場面で、なぜそれを使うのか」といった物語とセットで理解すると記憶に残りやすいです。歴史やケーススタディなどの形式とも相性が良いでしょう。"
+      },
+      symbolic: {
+        name: "象徴思考",
+        core: "あなたは、目に見える出来事の奥にある「意味」や「象徴」を読み取るタイプです。言葉・モノ・出来事を、そのままではなく“何かの表れ”として感じる感性を持っています。",
+        pattern: "日常の中でも「これって、こういうことの象徴な気がする」と考えがちで、比喩やたとえ話を好みます。「たとえるなら」「象徴的に言うと」が口癖になりやすいタイプです。",
+        misunderstood: "考え方が抽象的になりすぎると、周囲には「難しいことを言っている」「話が飛んでいる」と受け取られることがあります。本当は、かなり深いところで本質を見ようとしているのですが、そのまま伝えると“哲学っぽい話”に聞こえやすいです。",
+        stress: "表面的な数字や結果だけが重視され、意味や背景が無視されるときにストレスを感じやすいです。また、自分の感覚を「考えすぎ」「重い」と片付けられると、心が少しずつ離れていく傾向があります。",
+        anger: "怒ったときは、その出来事を「関係性の象徴」「扱われ方の象徴」として受けとめてしまい、傷つき方が深くなることがあります。単なるミスとしてではなく、「自分はこう見られているのだ」と感じてしまうためです。",
+        fulfillment: "自分の感じた意味や解釈を誰かが受け止めてくれたときに、大きな充実感を覚えます。芸術作品・文学・音楽などに触れながら、そこにある象徴を読み取った瞬間も、心が満たされやすい時間です。",
+        romance: "恋愛では、表面的なやり取りよりも、関係そのものが何を象徴しているのかを深く考えがちです。「この人といるときの自分が好きかどうか」を大切にします。さりげない行動や選び方から相手の本心を読み取ろうとするため、小さな違和感にも敏感です。",
+        jobs: "意味やコンセプトを扱う仕事と相性が良いタイプです。ブランディング・コンセプト設計・コピーライティング・アート・哲学・宗教・心理・研究など、“目に見えないものを言葉や形にする”分野で力を発揮しやすいです。",
+        learning: "学習では、単なるテクニックよりも「なぜそうなるのか」「それが社会や人にとって何を意味するのか」といった背景から入ると理解しやすくなります。ひとつのテーマについて深掘りし、自分なりの解釈をまとめる学び方が向いています。"
+      },
+      spatial: {
+        name: "空間思考",
+        core: "あなたは、「配置」「距離感」「動き」といった空間情報を敏感にとらえるタイプです。モノや人の位置関係、場の使い方などを自然に意識しながら過ごしています。",
+        pattern: "部屋やデスクの配置を工夫したり、導線を改善することが得意です。「ここにこれがあると動きやすい」「この配置は落ち着かない」が口癖になりやすいタイプです。",
+        misunderstood: "自分では当たり前に感じている空間感覚が、他の人には共有されていないことがあります。そのため「なんでわからないんだろう」と不思議に思われたり、逆に「こだわりが強い」と誤解されることがあります。",
+        stress: "狭すぎる空間・散らかった場所・導線が悪い環境などに長時間いると、見えないストレスが蓄積しやすいです。また、現場感覚を無視した机上の計画にも違和感を覚えます。",
+        anger: "怒ったときは、その場に居づらくなり、空間ごと距離を取ろうとすることがあります。言い合いを続けるよりも、その場から一旦離れて頭を冷やしたいと感じやすいタイプです。",
+        fulfillment: "空間の配置や動線を工夫して、誰かが「使いやすい」「居心地がいい」と喜んでくれたときに大きな満足感を覚えます。引っ越しやレイアウト変更など、“場を再設計する作業”が密かな楽しみになりやすいです。",
+        romance: "恋愛では、一緒にいるときの距離感や居心地をとても大事にします。無理なく自然体で同じ空間にいられる相手に惹かれやすいタイプです。デートの内容よりも、「どんな場所で、どんな空気の中で過ごしたか」が印象に残りやすいでしょう。",
+        jobs: "建築・インテリア・舞台・イベント設計・物流・店舗レイアウト・スポーツ・ダンスなど、空間の使い方や立体構造を扱う仕事と相性が良いです。現場のオペレーション改善などでも力を発揮しやすいタイプです。",
+        learning: "学習では、机や環境を整えてから始めると集中しやすくなります。図や模型・地図など、立体的・空間的な情報と結びつけて覚えると理解が深まりやすいです。"
+      }
+    };
+
+    // 質問定義（24問）
+    const questions = [
+      {
+        text: "新しいことを学ぶとき、いちばんしっくりくるのは？",
+        options: [
+          { text: "まず言葉の定義やルールを知る", type: "verbal" },
+          { text: "図やイメージで全体像を見る", type: "visual" },
+          { text: "とりあえず感覚で試してみる", type: "intuitive" },
+          { text: "ストーリーや例え話で理解する", type: "narrative" }
+        ]
+      },
+      {
+        text: "メモを取るときのスタイルに近いのは？",
+        options: [
+          { text: "箇条書き・文章で整理する", type: "verbal" },
+          { text: "マインドマップや図をよく描く", type: "visual" },
+          { text: "キーワードだけ書いて後は感覚で覚える", type: "intuitive" },
+          { text: "出来事の流れやエピソードを書き残す", type: "narrative" }
+        ]
+      },
+      {
+        text: "ひらめきやアイデアは、どんな形でやってきますか？",
+        options: [
+          { text: "言葉やフレーズとして浮かぶ", type: "verbal" },
+          { text: "映像やレイアウトのように見える", type: "visual" },
+          { text: "説明しづらいけれど“こうだ”という感覚", type: "intuitive" },
+          { text: "物語や場面として思い浮かぶ", type: "narrative" }
+        ]
+      },
+      {
+        text: "「わかった」と感じる決め手は？",
+        options: [
+          { text: "定義や理由を説明できるようになったとき", type: "verbal" },
+          { text: "頭の中で図や配置がはっきりしたとき", type: "visual" },
+          { text: "体感としてしっくりきたとき", type: "intuitive" },
+          { text: "流れやストーリーが自然につながったとき", type: "narrative" }
+        ]
+      },
+      {
+        text: "抽象的な言葉に触れたときの反応に近いのは？",
+        options: [
+          { text: "まず辞書的な意味・使い方を考える", type: "verbal" },
+          { text: "何かの象徴や比喩として受け取る", type: "symbolic" },
+          { text: "心の動きやニュアンスから理解する", type: "narrative" },
+          { text: "その言葉の雰囲気を感覚でつかむ", type: "intuitive" }
+        ]
+      },
+      {
+        text: "空間や配置についての感覚は？",
+        options: [
+          { text: "あまり意識していない", type: "verbal" },
+          { text: "物の位置関係やバランスに敏感", type: "spatial" },
+          { text: "なんとなく“居心地の良さ”で判断する", type: "intuitive" },
+          { text: "場面としての印象で捉える", type: "visual" }
+        ]
+      },
+      {
+        text: "会議や話し合いのとき、無意識に気になるのは？",
+        options: [
+          { text: "言っていることの論理や定義のぶれ", type: "verbal" },
+          { text: "全体の構造や関係性が整理されているか", type: "visual" },
+          { text: "その場の空気感・違和感の有無", type: "intuitive" },
+          { text: "それぞれの背景やストーリー", type: "narrative" }
+        ]
+      },
+      {
+        text: "好きな作品やコンテンツの傾向に近いのは？",
+        options: [
+          { text: "言葉選びやセリフが印象的な作品", type: "verbal" },
+          { text: "映像・構図・デザインが綺麗な作品", type: "visual" },
+          { text: "世界観や象徴表現が深い作品", type: "symbolic" },
+          { text: "人物の心情や物語が丁寧な作品", type: "narrative" }
+        ]
+      },
+      {
+        text: "モノを配置するとき、何をいちばん重視しますか？",
+        options: [
+          { text: "ラベルや分類・名前が分かりやすいこと", type: "verbal" },
+          { text: "見た目のバランスや直感的な分かりやすさ", type: "visual" },
+          { text: "動線や使いやすさ・機能性", type: "spatial" },
+          { text: "自分の感覚としてしっくりくるかどうか", type: "intuitive" }
+        ]
+      },
+      {
+        text: "感情が大きく動いたとき、あとで振り返るなら？",
+        options: [
+          { text: "言葉で整理してノートなどに書く", type: "verbal" },
+          { text: "頭の中で場面や情景として思い出す", type: "visual" },
+          { text: "象徴的なイメージや比喩で捉え直す", type: "symbolic" },
+          { text: "物語として“あのとき、こう思った”と語り直す", type: "narrative" }
+        ]
+      },
+      {
+        text: "知らない場所を歩くときの感覚に近いのは？",
+        options: [
+          { text: "地図や案内表示をよく確認する", type: "visual" },
+          { text: "建物や道の配置をなんとなく覚えておく", type: "spatial" },
+          { text: "気になる方向へとりあえず行ってみる", type: "intuitive" },
+          { text: "その場所の雰囲気やストーリーを想像する", type: "narrative" }
+        ]
+      },
+      {
+        text: "抽象的なテーマについて話すとき、どこから話したいですか？",
+        options: [
+          { text: "定義・言葉の意味から話したい", type: "verbal" },
+          { text: "全体像の図や構造から説明したい", type: "visual" },
+          { text: "象徴的な例やメタファーから語りたい", type: "symbolic" },
+          { text: "具体的なエピソードや物語から入りたい", type: "narrative" }
+        ]
+      },
+      {
+        text: "忙しいときのタスク管理で一番しっくりくるのは？",
+        options: [
+          { text: "ToDoリストを言葉で並べる", type: "verbal" },
+          { text: "カレンダーやボードに視覚的に配置する", type: "visual" },
+          { text: "重要度の感覚で優先順位をその場で決める", type: "intuitive" },
+          { text: "プロジェクトごとの流れとして整理する", type: "narrative" }
+        ]
+      },
+      {
+        text: "芸術作品や広告を見たとき、最初に気になるのは？",
+        options: [
+          { text: "コピーやメッセージの言葉", type: "verbal" },
+          { text: "構図・配色・デザイン", type: "visual" },
+          { text: "象徴として何を表しているか", type: "symbolic" },
+          { text: "そこにあるストーリーや背景", type: "narrative" }
+        ]
+      },
+      {
+        text: "人の話を聞くとき、無意識で追いかけるのは？",
+        options: [
+          { text: "使っている言葉や論理の流れ", type: "verbal" },
+          { text: "頭の中で図解しながら理解する", type: "visual" },
+          { text: "“この人は何を感じているのか”という感覚", type: "intuitive" },
+          { text: "その人の物語・背景・過去とのつながり", type: "narrative" }
+        ]
+      },
+      {
+        text: "比喩表現に触れたときの捉え方に近いのは？",
+        options: [
+          { text: "まず文字通りの意味を確認したくなる", type: "verbal" },
+          { text: "頭の中に具体的なイメージが浮かぶ", type: "visual" },
+          { text: "象徴として何を示しているのか感じ取る", type: "symbolic" },
+          { text: "物語の一場面のように受け止める", type: "narrative" }
+        ]
+      },
+      {
+        text: "空間や部屋について“ここがいい”と思うポイントは？",
+        options: [
+          { text: "働きやすさ・動きやすさが計算されている", type: "spatial" },
+          { text: "視覚的なバランスや余白が美しい", type: "visual" },
+          { text: "雰囲気・空気感が落ち着いている", type: "intuitive" },
+          { text: "そこにいる自分のストーリーが浮かぶ", type: "narrative" }
+        ]
+      },
+      {
+        text: "説明が分かりづらいとき、まず何をしてしまいますか？",
+        options: [
+          { text: "言葉の定義や前提を確認し直す", type: "verbal" },
+          { text: "図にして自分で整理しようとする", type: "visual" },
+          { text: "自分の感覚で“こういうことかな”と補う", type: "intuitive" },
+          { text: "背景にどんな事情があるか想像する", type: "narrative" }
+        ]
+      },
+      {
+        text: "直観やひらめきについて、どう感じますか？",
+        options: [
+          { text: "直観よりも論理を優先したい", type: "verbal" },
+          { text: "直観はイメージの形でやってくる", type: "visual" },
+          { text: "直観はかなり信頼している", type: "intuitive" },
+          { text: "直観は物語の“伏線回収”のように感じる", type: "narrative" }
+        ]
+      },
+      {
+        text: "抽象度の高いテーマを考えるとき、どれがしっくりきますか？",
+        options: [
+          { text: "言葉や概念の整理から入る", type: "verbal" },
+          { text: "シンプルな図やモデルで捉え直す", type: "visual" },
+          { text: "象徴やメタファーで表現してみる", type: "symbolic" },
+          { text: "ストーリーやケースでたとえて整理する", type: "narrative" }
+        ]
+      },
+      {
+        text: "人とのすれ違いで一番モヤモヤしやすいのは？",
+        options: [
+          { text: "言っていることとやっていることが違うとき", type: "verbal" },
+          { text: "全体像やルールが共有されていないとき", type: "visual" },
+          { text: "その場の空気に違和感があるとき", type: "intuitive" },
+          { text: "背景や物語を無視されたと感じるとき", type: "narrative" }
+        ]
+      },
+      {
+        text: "「創造的な仕事」と聞いて、イメージに近いのは？",
+        options: [
+          { text: "言葉やコンセプトを生み出すこと", type: "verbal" },
+          { text: "デザイン・レイアウト・構図を考えること", type: "visual" },
+          { text: "まったく新しい発想やひらめきを形にすること", type: "intuitive" },
+          { text: "ストーリーや世界観を作ること", type: "narrative" }
+        ]
+      },
+      {
+        text: "「この人と話していて落ち着く」と感じるのはどんな相手？",
+        options: [
+          { text: "言葉が丁寧で論理が通っている人", type: "verbal" },
+          { text: "図や例で説明してくれる人", type: "visual" },
+          { text: "感覚的な話も許容してくれる人", type: "intuitive" },
+          { text: "自分の背景やストーリーを聞いてくれる人", type: "narrative" }
+        ]
+      }
+    ];
+
+    const totalQuestions = questions.length;
+    const answers = new Array(totalQuestions).fill(null);
+
+    const questionsContainer = document.getElementById("questions");
+    const progressText = document.getElementById("progress-text");
+    const submitBtn = document.getElementById("submit-btn");
+    const resetBtn = document.getElementById("reset-btn");
+    const resultTypeEl = document.getElementById("result-type");
+    const resultSubtitleEl = document.getElementById("result-subtitle");
+    const resultBarsEl = document.getElementById("result-bars");
+    const resultTextEl = document.getElementById("result-text");
+    const resultPlaceholderEl = document.getElementById("result-placeholder");
+
+    function renderQuestions() {
+      questionsContainer.innerHTML = "";
+      questions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+
+        const title = document.createElement("div");
+        title.className = "question-title";
+        title.innerHTML = `<span class="question-index">Q${i + 1}</span>${q.text}`;
+        card.appendChild(title);
+
+        const optionsEl = document.createElement("div");
+        optionsEl.className = "options";
+
+        q.options.forEach((opt, idx) => {
+          const id = `q${i}_opt${idx}`;
+          const label = document.createElement("label");
+          label.className = "option-label";
+          label.setAttribute("for", id);
+
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `q${i}`;
+          input.id = id;
+          input.value = opt.type;
+
+          input.addEventListener("change", () => {
+            answers[i] = opt.type;
+            updateProgress();
+          });
+
+          const span = document.createElement("span");
+          span.className = "option-text";
+          span.textContent = opt.text;
+
+          label.appendChild(input);
+          label.appendChild(span);
+          optionsEl.appendChild(label);
+        });
+
+        card.appendChild(optionsEl);
+        questionsContainer.appendChild(card);
+      });
+    }
+
+    function updateProgress() {
+      const answered = answers.filter((a) => a !== null).length;
+      progressText.textContent = `${answered} / ${totalQuestions} 問回答済み`;
+      submitBtn.disabled = answered !== totalQuestions;
+    }
+
+    function initBars() {
+      resultBarsEl.innerHTML = "";
+      types.forEach((t) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+
+        const label = document.createElement("div");
+        label.className = "bar-label";
+        label.textContent = t.label;
+
+        const track = document.createElement("div");
+        track.className = "bar-track";
+
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.id = `bar-${t.key}`;
+
+        track.appendChild(fill);
+
+        const value = document.createElement("div");
+        value.className = "bar-value";
+        value.id = `val-${t.key}`;
+        value.textContent = "0";
+
+        row.appendChild(label);
+        row.appendChild(track);
+        row.appendChild(value);
+
+        resultBarsEl.appendChild(row);
+      });
+    }
+
+    function calcScores() {
+      const counts = {};
+      types.forEach((t) => (counts[t.key] = 0));
+      answers.forEach((typeKey) => {
+        if (typeKey && counts[typeKey] !== undefined) {
+          counts[typeKey] += 1;
+        }
+      });
+      const scores = {};
+      types.forEach((t) => {
+        const raw = counts[t.key];
+        const pct = Math.round((raw / totalQuestions) * 100);
+        scores[t.key] = pct;
+      });
+      return scores;
+    }
+
+    function updateBars(scores) {
+      types.forEach((t) => {
+        const fill = document.getElementById(`bar-${t.key}`);
+        const val = document.getElementById(`val-${t.key}`);
+        const score = scores[t.key] ?? 0;
+        if (fill) fill.style.width = `${score}%`;
+        if (val) val.textContent = `${score}`;
+      });
+    }
+
+    function getSortedTypes(scores) {
+      const arr = types.map((t) => ({
+        key: t.key,
+        label: t.label,
+        score: scores[t.key] ?? 0
+      }));
+      arr.sort((a, b) => b.score - a.score);
+      return arr;
+    }
+
+    function getTypeJaName(key) {
+      return typeProfiles[key]?.name ?? key;
+    }
+
+    // 診断結果テキスト生成
+    function buildResultText(mainKey, subKey, deepTag, scores) {
+      const main = typeProfiles[mainKey];
+      const sub = subKey ? typeProfiles[subKey] : null;
+
+      if (!main) {
+        return "この結果に対応する説明文が見つかりませんでした。";
+      }
+
+      const mainName = main.name;
+      const subName = sub ? sub.name : null;
+
+      const lines = [];
+
+      // ① あなたのタイプ（タイトル相当）
+      lines.push("■ あなたのタイプ");
+      lines.push("");
+
+      if (subName) {
+        if (deepTag === "main") {
+          lines.push(
+            `あなたは「${mainName}」を土台に、「${subName}」の要素も強く併せ持つタイプです。特に ${mainName} の色合いが濃く、ものごとを考えるときの起点はまず ${mainName} のモードになりやすい傾向があります。`
+          );
+        } else if (deepTag === "balanced") {
+          lines.push(
+            `あなたは「${mainName}」と「${subName}」がほぼ同じくらい強く出ている、バランス型のタイプです。状況に応じて、どちらのモードでも考えられる柔軟さを持っています。`
+          );
+        } else {
+          lines.push(
+            `あなたは「${mainName}」が中心にありつつ、「${subName}」もサブとして働いているタイプです。普段は ${mainName} モードで考えつつ、ときどき ${subName} の感覚が顔を出します。`
+          );
+        }
+      } else {
+        if (deepTag === "main") {
+          lines.push(
+            `あなたは「${mainName}」の傾向が特にはっきりと出ている、ディープタイプです。日常の多くの場面で、${mainName} 的な見方や考え方が自然に表れやすいでしょう。`
+          );
+        } else {
+          lines.push(
+            `あなたは「${mainName}」の傾向が比較的強く出ているタイプです。状況によって他の要素も顔を出しますが、基本モードは ${mainName} に近いと考えられます。`
+          );
+        }
+      }
+
+      lines.push("");
+
+      // ② タイプの本質
+      lines.push("■ タイプの本質");
+      lines.push("");
+      lines.push(main.core);
+      if (sub) {
+        lines.push(
+          `そこに「${subName}」の要素が重なることで、${sub.core.replace("あなたは、", "あわせて、")}`
+        );
+      }
+      lines.push("");
+
+      // ③ よくある口癖・思考パターン
+      lines.push("■ よくある口癖・思考パターン");
+      lines.push("");
+      lines.push(main.pattern);
+      if (sub) {
+        lines.push(
+          `また、サブタイプである「${subName}」の影響で、${sub.pattern.replace("あなたは、", "")}`
+        );
+      }
+      lines.push("");
+
+      // ④ 誤解されやすい言動とその理由
+      lines.push("■ 誤解されやすい言動と、その理由");
+      lines.push("");
+      lines.push(main.misunderstood);
+      if (sub) {
+        lines.push(
+          `そこに「${subName}」のクセも重なるため、状況によっては、さらに独特な印象を与えてしまうことがあります。相手があなたの思考プロセスを知らないと、「なぜその結論になるのか」が見えにくくなるためです。`
+        );
+      }
+      lines.push("");
+
+      // ⑤ 日常で感じやすいストレス
+      lines.push("■ 日常で感じやすいストレス");
+      lines.push("");
+      lines.push(main.stress);
+      if (sub) {
+        lines.push(
+          `同時に「${subName}」の感覚も働いているため、表面的には平気そうに見えても、心の内側では二重に疲れを感じていることもあります。`
+        );
+      }
+      lines.push("");
+
+      // ⑥ 怒ったときの傾向
+      lines.push("■ 怒ったときの傾向");
+      lines.push("");
+      lines.push(main.anger);
+      if (sub) {
+        lines.push(
+          `さらに「${subName}」の要素が加わることで、怒り方がより${sub.name}らしい形で表に出ることもあります。相手には少し予想外の反応に見えるかもしれません。`
+        );
+      }
+      lines.push("");
+
+      // ⑦ 発散のしかた・充実感を覚える瞬間
+      lines.push("■ 充実感を覚える瞬間と、ストレスの発散");
+      lines.push("");
+      lines.push(main.fulfillment);
+      lines.push(main.stress ? "" : "");
+      lines.push(
+        "ストレスがたまったときは、「自分が大事にしている感覚」を取り戻せる時間をつくることが大切です。短時間でもよいので、他人のペースから少し離れ、自分のペースで考えたり整えたりすることで、心が少しずつ整いやすくなります。"
+      );
+      lines.push("");
+
+      // ⑧ 恋愛傾向
+      lines.push("■ 恋愛傾向");
+      lines.push("");
+      lines.push(main.romance);
+      if (sub) {
+        lines.push(
+          `サブタイプの「${subName}」の影響で、恋愛の中でも ${subName} らしい感性がときどき顔を出します。そのため、相手には「ロジカルだけどロマンチック」「感覚的だけれど芯が通っている」など、二面性のある魅力として伝わりやすいタイプです。`
+        );
+      }
+      lines.push("");
+
+      // ⑨ 向いている職業
+      lines.push("■ 向いている職業の方向性");
+      lines.push("");
+      lines.push(main.jobs);
+      if (sub) {
+        lines.push(
+          `そこに「${subName}」の強みが重なることで、${sub.jobs.replace("タイプです。", "傾向もあわせ持っています。")}`
+        );
+      }
+      lines.push(
+        "必ずしも職業名そのものにこだわる必要はなく、日々の暮らしや趣味の中でも、これらの要素を活かせているときに充実感を得やすいタイプです。"
+      );
+      lines.push("");
+
+      // ⑩ 向いている学習法
+      lines.push("■ 向いている学習法");
+      lines.push("");
+      lines.push(main.learning);
+      if (sub) {
+        lines.push(
+          `サブタイプの「${subName}」の学び方も取り入れてみると、理解の幅がさらに広がります。自分の中で「しっくりくるやり方」を少しずつ組み合わせていくのがおすすめです。`
+        );
+      }
+      lines.push("");
+
+      // ⑪ 他タイプとのシナジー
+      lines.push("■ 他タイプとのシナジー（相性の良い組み合わせの一例）");
+      lines.push("");
+      lines.push(
+        "・自分と似たタイプの人とは、少ない言葉でも通じ合える安心感が生まれやすいです。"
+      );
+      lines.push(
+        "・自分と違うタイプの人とは、ときどきぶつかりながらも、視野を広げ合える関係になりやすいです。"
+      );
+      lines.push(
+        "・特に、あなたが苦手とする部分を自然に補ってくれるタイプとは、仕事や創作の場面で強いコンビネーションを発揮する可能性があります。"
+      );
+      lines.push("");
+      lines.push(
+        "どのタイプであっても優劣はなく、それぞれが「ものの見方の違い」にすぎません。自分の思考のクセを知り、相手のクセも想像できるようになることで、人間関係や学び方が少し楽になるはずです。"
+      );
+
+      return lines.join("\n");
+    }
+
+    function handleSubmit() {
+      const scores = calcScores();
+      updateBars(scores);
+
+      const sorted = getSortedTypes(scores);
+      const top1 = sorted[0];
+      const top2 = sorted[1];
+
+      if (!top1 || top1.score === 0) {
+        resultTypeEl.textContent = "まだ傾向がはっきり出ていません。";
+        resultSubtitleEl.textContent =
+          "もう一度、直感に近い選択肢を選び直してみてください。";
+        resultPlaceholderEl.style.display = "block";
+        resultTextEl.style.display = "none";
+        return;
+      }
+
+      const scoreDiff = top2 ? top1.score - top2.score : top1.score;
+      let deepTag = null;
+
+      if (top2 && scoreDiff >= 15) {
+        deepTag = "main"; // 1位ディープ
+      } else if (top2 && Math.abs(scoreDiff) <= 5) {
+        deepTag = "balanced"; // バランス
+      } else {
+        deepTag = null; // ふつうの複合
+      }
+
+      const mainName = getTypeJaName(top1.key);
+      const subName = top2 ? getTypeJaName(top2.key) : null;
+
+      if (subName) {
+        if (deepTag === "main") {
+          resultTypeEl.textContent = `${mainName} × ${subName}（${mainName}ディープ）`;
+        } else if (deepTag === "balanced") {
+          resultTypeEl.textContent = `${mainName} × ${subName}（バランスタイプ）`;
+        } else {
+          resultTypeEl.textContent = `${mainName} × ${subName}`;
+        }
+      } else {
+        if (deepTag === "main") {
+          resultTypeEl.textContent = `${mainName}（ディープ）`;
+        } else {
+          resultTypeEl.textContent = `${mainName}`;
+        }
+      }
+
+      resultSubtitleEl.textContent =
+        "下の棒グラフは、6つの思考タイプの相対的な強さを表しています。";
+
+      const text = buildResultText(top1.key, top2 ? top2.key : null, deepTag, scores);
+      resultTextEl.textContent = text;
+      resultPlaceholderEl.style.display = "none";
+      resultTextEl.style.display = "block";
+    }
+
+    function handleReset() {
+      answers.fill(null);
+      const inputs = document.querySelectorAll("#questions input[type=radio]");
+      inputs.forEach((i) => (i.checked = false));
+      updateProgress();
+      initBars();
+      resultTypeEl.textContent = "まだ診断は完了していません。";
+      resultSubtitleEl.textContent =
+        "質問にすべて回答すると、ここにあなたの思考タイプと解説が表示されます。";
+      resultPlaceholderEl.style.display = "block";
+      resultTextEl.style.display = "none";
+      resultTextEl.textContent = "";
+    }
+
+    renderQuestions();
+    initBars();
+    updateProgress();
+
+    submitBtn.addEventListener("click", handleSubmit);
+    resetBtn.addEventListener("click", handleReset);
+  </script>
+</body>
+</html>
