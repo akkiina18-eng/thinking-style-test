@@ -5,574 +5,475 @@
   <title>Thinking Style Test</title>
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #fffaf0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fffaf2;
       color: #333333;
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
-      padding: 16px;
+      padding: 24px 16px 80px;
       line-height: 1.7;
     }
     h1, h2, h3 {
       margin-top: 1.2em;
       margin-bottom: 0.4em;
     }
+    h1 {
+      font-size: 1.8rem;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.4rem;
+      border-left: 6px solid #ffb347;
+      padding-left: 8px;
+    }
+    h3 {
+      font-size: 1.15rem;
+      margin-top: 1em;
+    }
     p {
       margin: 0.4em 0;
     }
     .intro {
-      margin-bottom: 16px;
-      font-size: 14px;
+      margin: 1em 0 1.5em;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #ffe0b3;
     }
     .question {
-      margin: 12px 0;
-      padding: 10px 12px;
+      margin: 16px 0;
+      padding: 12px 14px;
       border-radius: 8px;
       background: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid #f0e0d0;
     }
-    .question-title {
-      font-weight: 600;
+    .q-number {
+      font-weight: bold;
+      color: #d47a00;
       margin-bottom: 4px;
-      font-size: 14px;
     }
     .options {
-      margin-top: 4px;
-      font-size: 13px;
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
     }
-    .options label {
-      display: block;
-      margin: 1px 0;
+    label {
+      cursor: pointer;
+      font-size: 0.95rem;
     }
-    .btn {
-      display: inline-block;
-      margin-top: 24px;
+    .btn-area {
+      text-align: center;
+      margin: 24px 0 32px;
+    }
+    button {
       padding: 10px 20px;
       border-radius: 999px;
       border: none;
-      background: #274060;
-      color: #ffffff;
-      font-size: 14px;
+      font-size: 1rem;
       cursor: pointer;
+      background: #ffb347;
+      color: #3b2100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.16);
     }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: default;
+    button:hover {
+      filter: brightness(1.05);
     }
     #result {
-      margin-top: 32px;
-      padding: 16px;
-      border-radius: 12px;
+      margin-top: 24px;
+      padding: 18px 16px;
+      border-radius: 10px;
       background: #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      display: none;
+      border: 1px solid #ffd9a6;
     }
-    .type-name {
-      font-size: 20px;
-      margin-bottom: 4px;
-    }
-    .type-short {
-      font-size: 14px;
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       margin-bottom: 12px;
     }
-    .section-title {
-      margin-top: 16px;
-      margin-bottom: 6px;
-      font-size: 15px;
-      font-weight: 600;
+    .tag {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #ffffff;
+      background: #d47a00;
+    }
+    .tag.sub {
+      background: #a35fd0;
+    }
+    .bars {
+      margin: 8px 0 16px;
     }
     .bar-row {
       display: flex;
       align-items: center;
       margin: 4px 0;
-      font-size: 13px;
+      gap: 8px;
+      font-size: 0.9rem;
     }
     .bar-label {
-      width: 90px;
+      width: 120px;
+      white-space: nowrap;
     }
     .bar-track {
       flex: 1;
       height: 10px;
       border-radius: 999px;
-      background: #eee;
+      background: #f5e6d8;
       overflow: hidden;
-      margin-right: 8px;
     }
     .bar-fill {
       height: 100%;
       border-radius: 999px;
+      background: linear-gradient(90deg,#ffb347,#ff7e5f);
+      width: 0%;
+      transition: width 0.4s ease-out;
     }
-    .bar-value {
-      width: 40px;
-      font-size: 12px;
+    .bar-score {
+      width: 60px;
       text-align: right;
+      font-variant-numeric: tabular-nums;
     }
-    ul {
-      padding-left: 20px;
-      margin: 4px 0 8px;
-      font-size: 13px;
+    .section {
+      margin-top: 12px;
+      padding-top: 4px;
+      border-top: 1px solid #f0e0d0;
     }
-    li {
-      margin: 2px 0;
+    .section:first-of-type {
+      border-top: none;
     }
-    @media (max-width: 600px) {
-      body {
-        padding: 12px;
-      }
-      .bar-label {
-        width: 70px;
-        font-size: 12px;
-      }
-      .type-name {
-        font-size: 18px;
-      }
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .small-note {
+      font-size: 0.85rem;
+      color: #777;
+      margin-top: 6px;
+    }
+    @media (max-width: 640px) {
+      body { padding: 16px 10px 64px; }
+      .bar-label { width: 100px; }
     }
   </style>
 </head>
 <body>
   <h1>Thinking Style Test</h1>
-  <p class="intro">
-    Answer 40 questions based on your intuition, and this test will analyze your thinking style on six axes.<br>
-    Please choose the option that best matches you from “Strongly agree” to “Strongly disagree”.
-  </p>
+  <div class="intro">
+    <p>By answering 40 questions, you can see which thinking styles are working most strongly in you.</p>
+    <p>The strongest style is treated as your <strong>Main</strong>, and the second strongest as your <strong>Sub</strong>. Your result is described as a “Main × Sub” type such as <strong>Verbal × Narrative</strong>.</p>
+    <p class="small-note">This test is for self-understanding only. It is not a clinical or official psychological assessment.</p>
+  </div>
 
   <div id="questions"></div>
 
-  <button class="btn" id="submitBtn">Show Result</button>
+  <div class="btn-area">
+    <button type="button" onclick="showResult()">See your result</button>
+  </div>
 
   <div id="result"></div>
 
   <script>
-    // 40 questions (slightly long style: type B). Order is fixed here and shuffled for display.
-    const baseQuestions = [
-      { id: 1, text: "When I整理 my thoughts or feelings, I often try to put them into sentences in my mind first so that I can understand them better." },
-      { id: 2, text: "When I listen to explanations, I understand much faster if there are pictures or diagrams, rather than only words." },
-      { id: 3, text: "When I look back on something that happened, I tend to remember it as a story, including how things developed, rather than just as isolated facts." },
-      { id: 4, text: "When I talk with others, I am very sensitive to their facial expressions and tone of voice, and I often feel I get more information from that than from their words alone." },
-      { id: 5, text: "When I start something new, I prefer to roughly plan the overall flow or steps beforehand, rather than jumping in with no structure." },
-      { id: 6, text: "Even when I cannot explain the details, I often make decisions based on a sense that “this direction feels right”, and it tends to work well." },
+    // ****** Questions: 40 items ******
+    // type: verbal / narrative / visual / intuitive / symbolic / spatial
+    const questions = [
+      { id: 1,  text: "It becomes easier to understand my feelings or ideas when I put them into words.", type: "verbal" },
+      { id: 2,  text: "When I explain something, I usually form sentences in my head before I speak.", type: "verbal" },
+      { id: 3,  text: "When I memorize something, it helps to say it out loud or write it down.", type: "verbal" },
+      { id: 4,  text: "Titles or good phrases often pop into my mind out of nowhere.", type: "verbal" },
+      { id: 5,  text: "I like to record my thoughts or feelings in words, such as in a diary or notes.", type: "verbal" },
 
-      { id: 7, text: "Even when I hear new information for the first time, I find it easy to understand if someone explains it to me carefully in words and logical steps." },
-      { id: 8, text: "Before I take action, I often simulate the situation in my mind like a small movie and imagine how it will go." },
-      { id: 9, text: "In everyday life, I sometimes imagine small events as if I were the main character in a story." },
-      { id: 10, text: "On days when my emotions are strongly stirred, I feel that it affects my concentration and actions for a while, even if I try to switch my mood logically." },
-      { id: 11, text: "I feel more comfortable in environments where there are some rules and procedures, rather than in places where everything is unpredictable." },
-      { id: 12, text: "While listening to explanations, I sometimes suddenly get a feeling like “I know what the conclusion will be”, and later it turns out to be right." },
+      { id: 6,  text: "When I remember events, they replay in my mind as a story with a timeline.", type: "narrative" },
+      { id: 7,  text: "When I listen to someone, I picture their story as scenes in my mind.", type: "narrative" },
+      { id: 8,  text: "I tend to think of my life in chapters or episodes.", type: "narrative" },
+      { id: 9,  text: "In movies or novels, I naturally pay attention to structure and foreshadowing.", type: "narrative" },
+      { id:10, text: "When I explain something, I often end up using examples or short stories.", type: "narrative" },
 
-      { id: 13, text: "When I have vague feelings or complicated thoughts, writing them down as sentences on paper or on my phone often helps me整理 and feel relieved." },
-      { id: 14, text: "When I trace my memories, it is easier to recall details by remembering the scene, the colors, or the layout of the place." },
-      { id: 15, text: "When I hear about someone’s experience, I understand and remember it better when I see it as one story including background and motives." },
-      { id: 16, text: "When I make decisions, I sometimes value whether something “feels right” more than purely logical reasons." },
-      { id: 17, text: "When I work or study, I feel calmer and more focused if I decide, “I will do this first, and that next” and follow that order." },
-      { id: 18, text: "Even if my ideas are still rough, I often sense that “this direction could become interesting”, and I enjoy following that feeling." },
+      { id:11, text: "When I look at a map or diagram, I quickly grasp the whole picture.", type: "visual" },
+      { id:12, text: "I understand things more easily when I use charts, images, or mind maps.", type: "visual" },
+      { id:13, text: "I like arranging layouts, such as room layouts or slides in a presentation.", type: "visual" },
+      { id:14, text: "A good diagram or picture can instantly make a difficult idea clear to me.", type: "visual" },
+      { id:15, text: "Before I do something, I often run a visual simulation in my head.", type: "visual" },
 
-      { id: 19, text: "When I learn new knowledge, I remember it better and understand it deeper when I explain it out loud in my own words." },
-      { id: 20, text: "When I take notes, I care not only about the content but also about the layout, spacing, and visual balance on the page." },
-      { id: 21, text: "When I explain something, I tend to talk in time order like, “first this happened, then this, and finally this”." },
-      { id: 22, text: "When I watch a movie or drama, or listen to someone’s story, I easily empathize with the characters’ feelings, and the impression stays with me for a long time." },
-      { id: 23, text: "Rather than vague instructions, I feel less stressed when I know specific information such as “what to do, by when, and how”." },
-      { id: 24, text: "When I make plans, I feel it suits me better to decide roughly first and adjust flexibly later, rather than deciding everything in detail from the beginning." },
+      { id:16, text: "Many times, the direction I choose by instinct later turns out to be right.", type: "intuitive" },
+      { id:17, text: "Even in complex situations, my eyes go straight to the key point.", type: "intuitive" },
+      { id:18, text: "When I decide something, I care not only about logic but also about what feels right.", type: "intuitive" },
+      { id:19, text: "When I meet someone for the first time, I quickly sense their atmosphere or compatibility.", type: "intuitive" },
+      { id:20, text: "Once I get a hunch, I am good at turning it into concrete action quickly.", type: "intuitive" },
 
-      { id: 25, text: "When I listen to conversations or read texts, I often pay attention to subtle wording differences to guess the speaker’s real intention." },
-      { id: 26, text: "When I see documents that use colors, icons, or diagrams, I naturally understand faster and focus more easily." },
-      { id: 27, text: "When I explain my feelings or situations, I often use comparisons or metaphors like “it feels like…”." },
-      { id: 28, text: "If someone speaks to me harshly or the mood of the place becomes heavy, I tend to carry that feeling with me even after I leave the situation." },
-      { id: 29, text: "Having a routine where I repeat the same method or flow many times helps me feel secure and stay focused." },
-      { id: 30, text: "While I am studying or learning something, there are moments when scattered pieces of knowledge suddenly connect and I feel I can see the whole picture at once." },
+      { id:21, text: "I like thinking about the deeper meaning or symbolism behind a scene or object.", type: "symbolic" },
+      { id:22, text: "I often use or remember metaphors and symbolic expressions.", type: "symbolic" },
+      { id:23, text: "I see personal meaning in ordinary things like the moon, flowers, fire, or shadows.", type: "symbolic" },
+      { id:24, text: "When I see a work or a statement, I want to know the message or theme behind it.", type: "symbolic" },
+      { id:25, text: "I can handle abstract topics or philosophical conversations fairly well.", type: "symbolic" },
 
-      { id: 31, text: "In my head, I often imagine “what if” situations using sentences, and think ahead about possible outcomes." },
-      { id: 32, text: "I can concentrate better on learning or explanations when there are many charts and diagrams, rather than text only." },
-      { id: 33, text: "I sometimes replay impressive conversations or lines in my head, together with the atmosphere of that moment, to savor them again." },
-      { id: 34, text: "When I talk to someone who accepts my feelings, I feel much lighter even if the problem is not fully solved yet." },
-      { id: 35, text: "Using planners or calendars to整理 my schedule and tasks makes me feel that my mind is also becoming more organized." },
-      { id: 36, text: "Even if I make detailed plans, I sometimes change direction at the last minute because I sense “this way seems better now”." },
+      { id:26, text: "I am good at sensing where I am in a space, such as in a building or town.", type: "spatial" },
+      { id:27, text: "I like thinking about furniture layout or traffic flow to make things more efficient.", type: "spatial" },
+      { id:28, text: "When I see 3-D objects (buildings, terrain, structures), I care about how they are built.", type: "spatial" },
+      { id:29, text: "After I walk a route once, I usually remember it quite clearly.", type: "spatial" },
+      { id:30, text: "I tend to enjoy puzzles, block games, or games where you arrange pieces or routes.", type: "spatial" },
 
-      { id: 37, text: "When something complex happens, I often understand the situation only after I explain my feelings and thoughts to someone in words." },
-      { id: 38, text: "When something is explained to me, the layout or diagrams remain in my mind, and I use that mental image later to recall the content." },
-      { id: 39, text: "I sometimes see experiences like meetings or farewells as “one chapter” in the story of my life." },
-      { id: 40, text: "I feel most like myself when I am with people who value my feelings and accept my emotions." }
+      // mixed items – mainly scored to one type
+      { id:31, text: "When I generate ideas, I often start from a title and then expand the content.", type: "verbal" },
+      { id:32, text: "I like turning my experiences into stories that might help someone else.", type: "narrative" },
+      { id:33, text: "When I take notes, I naturally mix words with arrows, boxes, or small sketches.", type: "visual" },
+      { id:34, text: "I often decide by intuition first and then explain the reasons logically afterwards.", type: "intuitive" },
+      { id:35, text: "From a single photo or scene, I start imagining a story or theme behind it.", type: "symbolic" },
+      { id:36, text: "When I open a map app, I quickly start comparing different possible routes.", type: "spatial" },
+      { id:37, text: "When I am thinking, sentences and images often appear in my mind at the same time.", type: "visual" },
+      { id:38, text: "When a deadline is close, good ideas sometimes come all at once.", type: "intuitive" },
+      { id:39, text: "I rarely accept events as they are; I like to give them my own meaning or interpretation.", type: "symbolic" },
+      { id:40, text: "Before a big change such as travel or moving, I mentally simulate the whole situation.", type: "spatial" }
     ];
 
-    const typeMapping = {
-      linguistic: [1, 7, 13, 19, 25, 31, 37],      // Linguistic
-      visual:     [2, 8, 14, 20, 26, 32, 38],      // Visual
-      narrative:  [3, 9, 15, 21, 27, 33, 39],      // Narrative
-      emotional:  [4, 10, 16, 22, 28, 34, 40],     // Emotional
-      structural: [5, 11, 17, 23, 29, 35],         // Structural
-      intuitive:  [6, 12, 18, 24, 30, 36]          // Intuitive
+    const choices = [
+      { value: 4, label: "Strongly agree" },
+      { value: 3, label: "Somewhat agree" },
+      { value: 2, label: "Not sure" },
+      { value: 1, label: "Somewhat disagree" },
+      { value: 0, label: "Strongly disagree" }
+    ];
+
+    const typeMeta = {
+      verbal:   { label: "Verbal thinking",   color: "#f4a460" },
+      narrative:{ label: "Narrative thinking",color: "#ff7f7f" },
+      visual:   { label: "Visual thinking",   color: "#ffa64d" },
+      intuitive:{ label: "Intuitive thinking",color: "#66cdaa" },
+      symbolic: { label: "Symbolic thinking", color: "#9370db" },
+      spatial:  { label: "Spatial thinking",  color: "#20b2aa" }
     };
 
-    const axisInfo = {
-      linguistic: { label: "Linguistic", color: "#f4d35e" },
-      visual:     { label: "Visual",     color: "#7ec8e3" },
-      narrative:  { label: "Narrative",  color: "#274060" },
-      emotional:  { label: "Emotional",  color: "#ff8fa3" },
-      structural: { label: "Structural", color: "#4caf50" },
-      intuitive:  { label: "Intuitive",  color: "#8884ff" }
-    };
-
-    const typeDetails = {
-      linguistic: {
-        name: "Linguistic Type",
-        short: "You tend to organize and understand things through words. Speaking or writing helps you clarify what you think and feel.",
-        strengths: [
-          "You can explain ideas logically and step by step.",
-          "You整理 your thoughts quickly by putting them into words.",
-          "You are good at making things easy to understand for others."
-        ],
-        weaknesses: [
-          "You may feel lost when explanations are based mainly on images or vague feelings.",
-          "You can feel frustrated when the reasons or logic are not clearly shared."
-        ],
-        goodMatch: "Structural and Narrative types",
-        badMatch: "Highly intuitive people who only use feelings without explanation",
-        dailyGood: [
-          "Summarizing your day or experiences in a journal or memo.",
-          "Explaining what you learned to someone else in your own words.",
-          "Writing down ideas or plans as bullet points or short sentences."
-        ],
-        dailyStress: [
-          "Meetings where nothing is clearly explained and decisions are made without reasons.",
-          "Situations where people say “just feel it” without any further explanation."
-        ],
-        jobs: [
-          "Writer, editor, or content creator",
-          "Planner, PR, or communications role",
-          "Teacher, trainer, or facilitator",
-          "Secretary or coordinator"
-        ],
-        study: [
-          "Summarizing what you learned in your own words.",
-          "Explaining concepts out loud as if you were teaching someone.",
-          "Using bullet points and short sentences to整理 key ideas."
-        ]
-      },
-      visual: {
-        name: "Visual Type",
-        short: "You understand and remember information best through what you see. Images, layouts, and colors help you grasp things quickly.",
-        strengths: [
-          "You can grasp the whole picture quickly by looking at diagrams or layouts.",
-          "You have a good sense of balance and spatial arrangement.",
-          "You are good at using visual tricks to help整理 information."
-        ],
-        weaknesses: [
-          "Long explanations with only text or speech can be tiring for you.",
-          "You may struggle to stay focused when there are no visual aids."
-        ],
-        goodMatch: "Intuitive types who like to talk using images and impressions",
-        badMatch: "Strongly linguistic types who only talk in long sentences without visual support",
-        dailyGood: [
-          "Tidying up your desk or notes so that they are visually clear.",
-          "Using color coding or icons to整理 tasks and information.",
-          "Using maps or diagrams to understand routes or structures."
-        ],
-        dailyStress: [
-          "Having to read long, text-only documents for a long time.",
-          "Listening to explanations without any slides, images, or notes."
-        ],
-        jobs: [
-          "Designer (graphic, web, UI, etc.)",
-          "Architecture or interior design",
-          "Presentation slide creation",
-          "Video, photo, or other creative fields"
-        ],
-        study: [
-          "Using mind maps or diagrams to整理 what you study.",
-          "Highlighting or color coding key parts in your notes.",
-          "Choosing materials that contain many charts and illustrations."
-        ]
+    // per–type description data
+    const typeData = {
+      verbal: {
+        core: "You naturally think, organize, and explain things through words. Even feelings and abstract ideas become clearer once you turn them into sentences or key phrases. You like to structure information and often play the role of the person who says, “So, in short, this is what it means.”",
+        pattern: "Typical phrases for you are things like “So basically…”, “In other words…”, or “To put it simply…”. You often build the whole sentence in your head before speaking, so there can be a short silence before you start talking. Because you explain carefully, some people may feel they are being interrogated or corrected, even when that is not your intention.",
+        stress: "You feel strong stress when you are asked to follow decisions that are not explained, or when things change without clear reasons. To release stress, it helps you to write your thoughts in a notebook or to talk them through with someone. You feel the most satisfied when your ideas are clearly organized in words.",
+        love: "In relationships, you value sharing thoughts and feelings in words. Rather than vague games, you prefer honest conversations like “This is how I feel now” or “I would appreciate it if you could do this.” You match well with partners who listen calmly and treat your words with care.",
+        job: "You tend to do well in work that involves organizing and communicating information in words: writing, editing, planning, customer support, secretarial work, consulting, and so on. You are good at translating complex information into something that others can understand.",
+        study: "You learn best by putting things into your own words: writing summaries, explaining to others, or making Q&A style notes. Instead of only reading, you deepen your understanding by asking, “How would I say this myself?”"
       },
       narrative: {
-        name: "Narrative Type",
-        short: "You understand the world through stories. Background, flow, and meaning are important for you to feel convinced.",
-        strengths: [
-          "You are good at整理 and explaining things as stories.",
-          "You naturally read the context and background behind events.",
-          "You can understand people by seeing their experiences as personal stories."
-        ],
-        weaknesses: [
-          "You may find pure numbers or bullet points hard to remember or care about.",
-          "Very short, conclusion-only communication can feel unsatisfying."
-        ],
-        goodMatch: "Emotional types who share feelings and background together",
-        badMatch: "Very structural people who focus only on rules and efficiency",
-        dailyGood: [
-          "Reflecting on your experiences as episodes or chapters in your life.",
-          "Listening to others as if you are hearing their personal stories.",
-          "Finding your own meaning or lessons in movies and books."
-        ],
-        dailyStress: [
-          "Situations where you are only given tasks without any explanation of the why.",
-          "Workplaces where people say “Just do it. No need to know the story.”"
-        ],
-        jobs: [
-          "Writer or scenario/script creator",
-          "Counselor or coach",
-          "Marketing or branding roles",
-          "Customer service or hospitality"
-        ],
-        study: [
-          "Turning what you learn into short stories or examples.",
-          "Studying the background and reasons behind theories or events.",
-          "Remembering knowledge together with real-life cases or episodes."
-        ]
+        core: "You understand the world as stories with a flow of time. You connect scattered information into a narrative with a beginning, middle, and end. When you listen to people, you often sense, “What kind of story is this person trying to tell?”",
+        pattern: "You often say things like “For example…”, “Let me tell you a story…”, or “Once, this happened…”. Your explanations can become long because you want to include the background and the turning points. For people who only want the key points, this can sometimes feel roundabout.",
+        stress: "You feel stressed when you cannot form a meaningful story about what is happening to you. Unfair events or situations that seem meaningless tend to stay in your mind for a long time. On the other hand, when you feel that your past experiences are helping someone, you gain a deep sense of fulfillment.",
+        love: "In love, you value “our story” as a couple. You often remember and retell important moments such as the first meeting or a special day. You tend to match well with partners who enjoy looking back on shared memories and building a story together over time.",
+        job: "You are suited to work that uses stories to convey meaning: interviewing, writing, teaching, counselling, marketing, presentations, and so on. You are good at organizing complicated situations into a story that moves people’s hearts.",
+        study: "Instead of memorizing facts in isolation, you learn better by understanding the background and the “why” behind them. Case studies, examples, and historical stories help you connect new knowledge into a bigger narrative."
       },
-      emotional: {
-        name: "Emotional Type",
-        short: "You understand and move through life based on feelings. Emotions and atmosphere have a strong influence on your decisions.",
-        strengths: [
-          "You have high empathy and can stand in others’ shoes.",
-          "You can sense changes in mood or atmosphere very quickly.",
-          "You care about how people feel and build warm relationships."
-        ],
-        weaknesses: [
-          "You can be easily drained by negative emotions or conflicts.",
-          "Cold attitudes or lack of care from others can be very stressful."
-        ],
-        goodMatch: "Narrative types who share experiences and feelings deeply",
-        badMatch: "Strongly structural people who only prioritize rules over feelings",
-        dailyGood: [
-          "Talking with people who listen and empathize with you.",
-          "Putting your feelings into words to整理 your inner state.",
-          "Spending time in places and with people where you feel safe."
-        ],
-        dailyStress: [
-          "Environments where emotions are dismissed as unimportant.",
-          "One-way, inconsiderate communication with no care for feelings."
-        ],
-        jobs: [
-          "Counselor or mental health support",
-          "Customer service and hospitality",
-          "Education, childcare, or mentoring",
-          "HR or any role that deals closely with people"
-        ],
-        study: [
-          "Connecting study topics with your own experiences and feelings.",
-          "Studying with people you feel comfortable with.",
-          "Choosing topics or materials that emotionally interest you."
-        ]
-      },
-      structural: {
-        name: "Structural Type",
-        short: "You like to understand things through rules, systems, and procedures. You are good at bringing order and stability to complex situations.",
-        strengths: [
-          "You are good at designing processes and steps.",
-          "You have strong planning skills and can reduce mistakes.",
-          "You整理 complex information into clear structures."
-        ],
-        weaknesses: [
-          "Sudden changes or unclear rules can be very stressful.",
-          "Too much flexibility with no plan can make you anxious."
-        ],
-        goodMatch: "Linguistic types who discuss ideas logically",
-        badMatch: "Strongly intuitive people who change direction purely on feeling",
-        dailyGood: [
-          "Making to-do lists and checklists.",
-          "Creating routines that make your day predictable.",
-          "Rearranging your environment to improve efficiency."
-        ],
-        dailyStress: [
-          "Situations where goals or rules are not clearly defined.",
-          "Places where plans often change last minute without explanation."
-        ],
-        jobs: [
-          "Office administration or back-office roles",
-          "Accounting or finance",
-          "Assistant or secretary",
-          "Project management or operations"
-        ],
-        study: [
-          "Planning your study schedule and sticking to it.",
-          "Grouping knowledge into categories or frameworks.",
-          "Repeating exercises to build stable routines and patterns."
-        ]
+      visual: {
+        core: "You think in images and structures. Layout, diagrams, colors, and white space catch your eye. You prefer to grasp the whole picture in one image and then adjust the details.",
+        pattern: "You tend to use phrases like “If I draw it…”, “Visually speaking…”, or “The layout would be like this.” Because you see images strongly in your mind, it can feel frustrating to explain only with words. Others may not fully understand how clear the picture is for you.",
+        stress: "You feel stress when information is presented in a scattered way and you cannot see the structure or relationships. Very messy or crowded spaces also drain your focus. You feel satisfaction when a diagram, slide, or room layout finally “clicks” and everything looks organized.",
+        love: "In relationships, you care about the shared atmosphere and visual scene: a nice café, a beautiful view, or a comfortable room. You match well with partners who enjoy creating pleasant spaces together. You also read a lot from facial expressions and body language, not only from words.",
+        job: "You are suited to design, illustration, video, UI/UX, slide creation, architecture, product design and other fields where ideas must be turned into visual form. You are strong at making abstract ideas visible and easy to grasp.",
+        study: "You learn well with visual tools: charts, mind maps, diagrams, and icons. Using colors and simple drawings in your notes helps the content stay in your memory much longer."
       },
       intuitive: {
-        name: "Intuitive Type",
-        short: "You sense possibilities and directions through intuition. You like change and enjoy discovering new options.",
-        strengths: [
-          "You have many ideas and creative sparks.",
-          "You can adapt flexibly to changing situations.",
-          "You quickly grasp the overall direction or vibe."
-        ],
-        weaknesses: [
-          "You may find detailed rules and strict procedures tiring.",
-          "It can be hard to explain your decisions logically to others."
-        ],
-        goodMatch: "Visual types who share ideas using images and impressions",
-        badMatch: "Very structural types who demand strict rules and exact steps",
-        dailyGood: [
-          "Trying new experiences or methods.",
-          "Brainstorming and idea generation sessions.",
-          "Working in environments with some freedom and flexibility."
-        ],
-        dailyStress: [
-          "Very repetitive tasks bound by many strict rules.",
-          "Workplaces where creativity and change are not welcomed."
-        ],
-        jobs: [
-          "Entrepreneur or freelancer",
-          "Planning or new business development",
-          "Creative professions in general",
-          "Sales or proposal-based roles"
-        ],
-        study: [
-          "Grasping the big picture first before the details.",
-          "Writing down sudden ideas or insights and整理 them later.",
-          "Learning by trying things out and adjusting as you go."
-        ]
+        core: "You quickly sense the core of a situation, even when there is a lot of information or uncertainty. A rough overall feeling comes first, and then you build the logic to support it. You are strong at fast decisions and direction-setting.",
+        pattern: "You often say things like “I just feel like…”, “My gut says…”, or “I can’t fully explain it, but…”. Inside, you are processing many cues, but from the outside it can look as if you are deciding without reasons. Some people may treat your intuition too lightly.",
+        stress: "You feel stressed when you are tightly bound by detailed rules and cannot try things freely. You work best in environments with some freedom and speed. When stress is high, it helps to take a walk, shower, or short break where you empty your mind and let your intuition reset.",
+        love: "In love, you value the sense of “This person feels right” more than perfect logic. You focus on the atmosphere and whether you feel relaxed together. You match well with partners who do not question every detail, but instead trust your sense and give you room to move.",
+        job: "You are suited to work that requires quick judgment in changing conditions: new business ideas, creative work, consulting, emergency response, and so on. You are good at choosing a direction even when information is incomplete.",
+        study: "You learn most effectively by getting a rough overview first and then filling in the details. You tend to grow by learning and trying at the same time rather than waiting until you understand everything perfectly."
+      },
+      symbolic: {
+        core: "You read deeper meaning and themes behind what you see. You understand the world through metaphors and motifs, and you often connect experiences with symbols. You are naturally drawn to deep topics and big questions.",
+        pattern: "You may say things like “In other words, this symbolizes…”, or “The theme here is…”. You like to talk about meaning and intention. Others may sometimes feel that you are “thinking too deeply” or making things overly complicated, even when you are simply following your normal way of understanding.",
+        stress: "You feel drained in environments driven only by short-term profit or surface-level tasks with no meaning. You gain energy from deep conversations about values, beauty, or purpose. When stress is high, time alone with books, art, or music helps you reconnect with yourself.",
+        love: "In relationships, you value symbolism and story: meaningful gifts, special places, or words with personal background. You match well with partners who enjoy talking about values and inner worlds, and who respect your sensitivity rather than dismissing it as “too much”.",
+        job: "You are suited to fields where meaning and story matter: writing, poetry, philosophy, art, branding, concept design, and so on. You are strong at designing the message behind an expression or product.",
+        study: "You learn best when you ask, “What does this mean for me?” rather than memorizing mechanically. Connecting keywords and building your own conceptual map helps knowledge settle into a personal worldview."
+      },
+      spatial: {
+        core: "You have a strong sense of space, position, and structure. You are sensitive to movement paths, layout, and how things are arranged. In your mind, you often handle information like a 3-D model.",
+        pattern: "You tend to use phrases like “In terms of layout…”, “From a structural point of view…”, or “The flow here is not smooth.” Your detailed ideas about space may be misunderstood as being picky or overly particular by people who do not sense those things.",
+        stress: "Inefficient layouts, bad traffic flow, or very cluttered spaces cause you stress. You feel satisfied when you can improve a space or system so that people and things move more smoothly. Organizing rooms, tools, or work processes can be a natural way for you to relieve stress.",
+        love: "In relationships, you care about daily life together: living space, movement lines in the home, and shared routines. You often judge compatibility by whether you can live comfortably in the same space. You match well with partners who cooperate in designing a practical and comfortable lifestyle.",
+        job: "You are suited to architecture, interior design, logistics, process design, event management, operations, and other fields that design space and flow. You are strong at improving how people and objects move through a system.",
+        study: "You learn well with models, diagrams, floor plans, and physical objects. Moving things around with your hands—such as building models or rearranging items—helps you understand concepts more deeply."
       }
     };
 
-    function shuffleArray(arr) {
-      const a = arr.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
+    function renderQuestions() {
+      const container = document.getElementById("questions");
+      container.innerHTML = "";
+      questions.forEach((q, index) => {
+        const div = document.createElement("div");
+        div.className = "question";
+        const num = document.createElement("div");
+        num.className = "q-number";
+        num.textContent = `Question ${index + 1} / ${questions.length}`;
+        const text = document.createElement("div");
+        text.textContent = q.text;
+        const opts = document.createElement("div");
+        opts.className = "options";
+
+        choices.forEach((c, i) => {
+          const id = `q${q.id}_${i}`;
+          const label = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `q${q.id}`;
+          input.value = String(c.value);
+          input.id = id;
+          label.appendChild(input);
+          const span = document.createElement("span");
+          span.textContent = " " + c.label;
+          label.appendChild(span);
+          opts.appendChild(label);
+        });
+
+        div.appendChild(num);
+        div.appendChild(text);
+        div.appendChild(opts);
+        container.appendChild(div);
+      });
     }
 
-    const qContainer = document.getElementById("questions");
-    const shuffled = shuffleArray(baseQuestions);
-
-    shuffled.forEach((q, index) => {
-      const div = document.createElement("div");
-      div.className = "question";
-      div.innerHTML = `
-        <div class="question-title">${index + 1}. ${q.text}</div>
-        <div class="options">
-          ${[5,4,3,2,1].map(v => `
-            <label>
-              <input type="radio" name="q${q.id}" value="${v}">
-              ${
-                v === 5 ? "Strongly agree" :
-                v === 4 ? "Somewhat agree" :
-                v === 3 ? "Neutral" :
-                v === 2 ? "Somewhat disagree" :
-                           "Strongly disagree"
-              }
-            </label>
-          `).join("")}
-        </div>
-      `;
-      qContainer.appendChild(div);
-    });
-
-    function calculateScores() {
-      for (const q of baseQuestions) {
-        const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
-        if (!selected) {
-          alert("There are unanswered questions. Please check the question numbers.");
-          return null;
-        }
-      }
-
-      const raw = {
-        linguistic: 0,
-        visual: 0,
+    function showResult() {
+      const scores = {
+        verbal: 0,
         narrative: 0,
-        emotional: 0,
-        structural: 0,
-        intuitive: 0
+        visual: 0,
+        intuitive: 0,
+        symbolic: 0,
+        spatial: 0
       };
 
-      for (const type in typeMapping) {
-        typeMapping[type].forEach(id => {
-          const ans = document.querySelector(`input[name="q${id}"]:checked`);
-          if (ans) {
-            raw[type] += Number(ans.value);
-          }
-        });
-      }
-
-      const normalized = {};
-      for (const type in raw) {
-        const count = typeMapping[type].length;
-        const min = 1 * count;
-        const max = 5 * count;
-        const val = raw[type];
-        const score = Math.round((val - min) / (max - min) * 100);
-        normalized[type] = Math.max(0, Math.min(100, score));
-      }
-
-      return normalized;
-    }
-
-    document.getElementById("submitBtn").addEventListener("click", () => {
-      const scores = calculateScores();
-      if (!scores) return;
-
-      let bestType = null;
-      let bestScore = -1;
-      for (const type in scores) {
-        if (scores[type] > bestScore) {
-          bestScore = scores[type];
-          bestType = type;
+      for (const q of questions) {
+        const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+        if (!selected) {
+          alert("Please answer all questions.");
+          return;
         }
+        const v = parseInt(selected.value, 10);
+        scores[q.type] += v;
       }
 
-      const detail = typeDetails[bestType];
-      const resultDiv = document.getElementById("result");
-      resultDiv.style.display = "block";
+      const entries = Object.entries(scores);
+      entries.sort((a, b) => b[1] - a[1]);
+      const [mainKey, mainScore] = entries[0];
+      const [subKey, subScore]   = entries[1];
 
-      const order = ["linguistic", "visual", "narrative", "emotional", "structural", "intuitive"];
-      const barHtml = order.map(type => {
-        const info = axisInfo[type];
-        const val = scores[type];
+      const maxScore = mainScore || 1; // top bar = 100%
+      const resultDiv = document.getElementById("result");
+      const totalQuestionsPerType = {};
+      for (const q of questions) {
+        totalQuestionsPerType[q.type] = (totalQuestionsPerType[q.type] || 0) + 1;
+      }
+
+      const barsHtml = entries.map(([key, score]) => {
+        const meta = typeMeta[key];
+        const percent = Math.round((score / maxScore) * 100);
+        const maxPerType = (totalQuestionsPerType[key] || 1) * 4;
+        const scoreText = `${score}/${maxPerType}`;
         return `
           <div class="bar-row">
-            <div class="bar-label">${info.label}</div>
+            <div class="bar-label">${meta.label}</div>
             <div class="bar-track">
-              <div class="bar-fill" style="width:${val}%; background:${info.color};"></div>
+              <div class="bar-fill" style="width:${percent}%; background:${meta.color};"></div>
             </div>
-            <div class="bar-value">${val}%</div>
+            <div class="bar-score">${scoreText}</div>
           </div>
         `;
       }).join("");
 
-      function listHtml(items) {
-        return `<ul>${items.map(t => `<li>${t}</li>`).join("")}</ul>`;
-      }
+      const mainMeta = typeMeta[mainKey];
+      const subMeta  = typeMeta[subKey];
+
+      const textHtml = buildResultText(mainKey, subKey);
 
       resultDiv.innerHTML = `
-        <h2>Result</h2>
-        <div class="type-name">${detail.name}</div>
-        <p class="type-short">${detail.short}</p>
+        <div class="tag-row">
+          <span class="tag">Main: ${mainMeta.label}</span>
+          <span class="tag sub">Sub: ${subMeta.label}</span>
+        </div>
+        <h2>${mainMeta.label} × ${subMeta.label} type</h2>
+        <div class="bars">
+          ${barsHtml}
+        </div>
+        ${textHtml}
+      `;
+      resultDiv.scrollIntoView({ behavior: "smooth" });
+    }
 
-        <h3 class="section-title">Balance of Thinking Styles</h3>
-        ${barHtml}
+    function buildResultText(mainKey, subKey) {
+      const mainT = typeMeta[mainKey].label;
+      const subT  = typeMeta[subKey].label;
+      const mainD = typeData[mainKey];
+      const subD  = typeData[subKey];
+      const isSame = mainKey === subKey;
 
-        <h3 class="section-title">Key Characteristics</h3>
-        <p>${detail.short}</p>
+      const titleIntro = isSame
+        ? `In this result, your strongest style is clearly ${mainT}.`
+        : `In this result, your strongest style is ${mainT} (Main), supported by ${subT} (Sub).`;
 
-        <h3 class="section-title">Strengths</h3>
-        ${listHtml(detail.strengths)}
+      const synergyText = isSame
+        ? `You use ${mainT} at a deep level. You often become the “specialist” or the person who provides a stable axis in that way of thinking. When people around you are unsure about the direction, you naturally step into the role of offering a clear standard.`
+        : `You are a “combined type” that uses ${mainT} as your base and adds elements of ${subT}. Your Main style ${mainT} provides the overall structure and axis, and your Sub style ${subT} supports and extends it. This combination creates strengths that a pure ${mainT} type usually does not have.`;
 
-        <h3 class="section-title">Weaknesses / Things to Watch Out For</h3>
-        ${listHtml(detail.weaknesses)}
-
-        <h3 class="section-title">Well-matching Thinking Styles</h3>
-        <p>${detail.goodMatch}</p>
-
-        <h3 class="section-title">Thinking Styles That May Clash</h3>
-        <p>${detail.badMatch}</p>
-
-        <h3 class="section-title">Things You Are Good At in Daily Life</h3>
-        ${listHtml(detail.dailyGood)}
-
-        <h3 class="section-title">Things That May Cause Stress in Daily Life</h3>
-        ${listHtml(detail.dailyStress)}
-
-        <h3 class="section-title">Examples of Suitable Jobs</h3>
-        ${listHtml(detail.jobs)}
-
-        <h3 class="section-title">Recommended Ways of Learning</h3>
-        ${listHtml(detail.study)}
+      const workSynergy = `
+        The combination of ${mainT} and ${subT} lets you keep the strengths of ${mainT} while adding the viewpoint of ${subT}.
+        At work, you can use the structure and decision power of your Main style together with the sensitivity, visuals, story sense, intuition, or structural awareness of your Sub style.
+        This often leads to output that is both easy for others to understand and very “you”.
       `;
 
-      resultDiv.scrollIntoView({ behavior: "smooth" });
-    });
+      const loveText = `
+        In close relationships, your Main style, ${mainT}, shows itself most strongly. ${mainD.love}
+        On top of that, your Sub style, ${subT}, also colors the way you relate to others.
+        A good partner for you is someone who respects your ${mainT} side and is also curious about your ${subT} side,
+        rather than praising one and denying or ignoring the other. If they only value one side, stress tends to build up over time.
+      `;
+
+      return `
+        <div class="section">
+          <div class="section-title">Core of your type</div>
+          <p>${titleIntro}</p>
+          <p>${mainD.core}</p>
+          ${!isSame ? `<p>On top of that, you also have the following traits from ${subT}: ${subD.core}</p>` : ""}
+          <p>${synergyText}</p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Typical phrases, thinking patterns, and common misunderstandings</div>
+          <p>${mainD.pattern}</p>
+          ${!isSame ? `<p>Your Sub style ${subT} also appears in some situations, so people may sometimes see you like this as well: ${subD.pattern}</p>` : ""}
+        </div>
+
+        <div class="section">
+          <div class="section-title">Stress points in daily life and where you feel most satisfied</div>
+          <p>${mainD.stress}</p>
+          ${!isSame ? `<p>From your ${subT} side, the following also tends to influence your stress and satisfaction: ${subD.stress}</p>` : ""}
+        </div>
+
+        <div class="section">
+          <div class="section-title">Romantic style and partnerships</div>
+          <p>${loveText}</p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Suitable work and roles</div>
+          <p>${mainD.job}</p>
+          ${!isSame ? `<p>Your Sub style ${subT} adds this flavor to your career options: ${subD.job}</p>` : ""}
+          <p>${workSynergy}</p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">How you learn best</div>
+          <p>${mainD.study}</p>
+          ${!isSame ? `<p>To make use of your ${subT} side as well, the following approach also works for you: ${subD.study}</p>` : ""}
+        </div>
+
+        <p class="small-note">
+          This test shows which thinking styles are relatively strong for you right now.
+          The balance can change with situations and growth, so please use it simply as a hint for understanding your own patterns.
+        </p>
+      `;
+    }
+
+    renderQuestions();
   </script>
 </body>
 </html>
