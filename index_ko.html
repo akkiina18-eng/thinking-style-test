@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>사고 스타일 테스트</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fffaf2;
+      color: #333333;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+      line-height: 1.7;
+    }
+    h1, h2, h3 {
+      margin-top: 1.2em;
+      margin-bottom: 0.4em;
+    }
+    h1 {
+      font-size: 1.8rem;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.4rem;
+      border-left: 6px solid #ffb347;
+      padding-left: 8px;
+    }
+    h3 {
+      font-size: 1.15rem;
+      margin-top: 1em;
+    }
+    p {
+      margin: 0.4em 0;
+    }
+    .intro {
+      margin: 1em 0 1.5em;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #ffe0b3;
+    }
+    .question {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid #f0e0d0;
+    }
+    .q-number {
+      font-weight: bold;
+      color: #d47a00;
+      margin-bottom: 4px;
+    }
+    .options {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+    }
+    label {
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .btn-area {
+      text-align: center;
+      margin: 24px 0 32px;
+    }
+    button {
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      background: #ffb347;
+      color: #3b2100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.16);
+    }
+    button:hover {
+      filter: brightness(1.05);
+    }
+    #result {
+      margin-top: 24px;
+      padding: 18px 16px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #ffd9a6;
+    }
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .tag {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #ffffff;
+      background: #d47a00;
+    }
+    .tag.sub {
+      background: #a35fd0;
+    }
+    .bars {
+      margin: 8px 0 16px;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      margin: 4px 0;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+    .bar-label {
+      width: 120px;
+      white-space: nowrap;
+    }
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      border-radius: 999px;
+      background: #f5e6d8;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg,#ffb347,#ff7e5f);
+      width: 0%;
+      transition: width 0.4s ease-out;
+    }
+    .bar-score {
+      width: 60px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .section {
+      margin-top: 12px;
+      padding-top: 4px;
+      border-top: 1px solid #f0e0d0;
+    }
+    .section:first-of-type {
+      border-top: none;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .small-note {
+      font-size: 0.85rem;
+      color: #777;
+      margin-top: 6px;
+    }
+    @media (max-width: 640px) {
+      body { padding: 16px 10px 64px; }
+      .bar-label { width: 100px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>사고 스타일 테스트</h1>
+  <div class="intro">
+    <p>40개의 질문에 답하면, 지금 당신 안에서 어떤 사고 스타일이 특히 강하게 작동하고 있는지 볼 수 있습니다.</p>
+    <p>가장 점수가 높은 스타일을 <strong>메인</strong>, 두 번째로 높은 스타일을 <strong>서브</strong>로 두고, 예를 들어 <strong>언어 × 서사</strong>와 같은 “메인 × 서브” 타입으로 설명합니다.</p>
+    <p class="small-note">이 테스트는 자기 이해를 돕기 위한 도구일 뿐이며, 임상적·공식적인 심리 검사가 아닙니다.</p>
+  </div>
+
+  <div id="questions"></div>
+
+  <div class="btn-area">
+    <button type="button" onclick="showResult()">결과 보기</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    // Questions: 40 items
+    // type: verbal / narrative / visual / intuitive / symbolic / spatial
+    const questions = [
+      { id: 1,  text: "내 감정이나 생각은 말로 표현하면 더 정리되기 쉽습니다.", type: "verbal" },
+      { id: 2,  text: "무언가를 설명할 때, 말하기 전에 머릿속에서 문장을 먼저 만드는 편입니다.", type: "verbal" },
+      { id: 3,  text: "무엇인가를 외울 때, 소리 내어 말하거나 적어 보는 것이 도움이 됩니다.", type: "verbal" },
+      { id: 4,  text: "좋은 제목이나 문장이 갑자기 떠오르는 경우가 자주 있습니다.", type: "verbal" },
+      { id: 5,  text: "일기나 메모 등으로 생각과 감정을 글로 남기는 편입니다.", type: "verbal" },
+
+      { id: 6,  text: "과거 일을 떠올릴 때, 시간의 흐름을 가진 이야기처럼 떠오르는 편입니다.", type: "narrative" },
+      { id: 7,  text: "누군가의 이야기를 들을 때, 머릿속에서 장면이 이어지는 영화처럼 그려집니다.", type: "narrative" },
+      { id: 8,  text: "자신의 인생을 몇 개의 장(챕터)이나 에피소드로 나누어 생각하는 편입니다.", type: "narrative" },
+      { id: 9,  text: "영화나 소설을 볼 때, 구조나 복선에 자연스럽게 눈이 갑니다.", type: "narrative" },
+      { id:10, text: "설명하다 보면, 예시나 짧은 이야기로 설명하는 경우가 많습니다.", type: "narrative" },
+
+      { id:11, text: "지도나 도표를 보면 전체 구성이 비교적 빨리 들어오는 편입니다.", type: "visual" },
+      { id:12, text: "표, 이미지, 마인드맵 등 시각 자료를 사용할 때 이해가 더 잘 됩니다.", type: "visual" },
+      { id:13, text: "방 구조나 슬라이드의 레이아웃을 고민하는 것을 좋아합니다.", type: "visual" },
+      { id:14, text: "좋은 그림이나 도표 하나만으로도 어려운 내용이 확실히 이해될 때가 많습니다.", type: "visual" },
+      { id:15, text: "무언가를 하기 전에, 머릿속에서 장면을 미리 시뮬레이션하는 일이 자주 있습니다.", type: "visual" },
+
+      { id:16, text: "복잡한 상황에서도 직감적으로 옳은 방향을 선택하는 경우가 자주 있습니다.", type: "intuitive" },
+      { id:17, text: "정보가 많아도 핵심이 되는 포인트를 곧바로 찾아내는 편입니다.", type: "intuitive" },
+      { id:18, text: "결정을 내릴 때 논리뿐 아니라 “느낌상 맞는지”도 중요하게 생각합니다.", type: "intuitive" },
+      { id:19, text: "처음 만난 사람이라도 분위기나 궁합을 빠르게 느끼는 편입니다.", type: "intuitive" },
+      { id:20, text: "한 번 ‘이거다’ 싶은 감이 오면, 구체적인 행동으로 옮기는 속도가 빠른 편입니다.", type: "intuitive" },
+
+      { id:21, text: "어떤 장면이나 물건을 볼 때, 그 안에 담긴 의미나 상징을 떠올리는 편입니다.", type: "symbolic" },
+      { id:22, text: "비유나 상징적인 표현을 자주 사용하거나 잘 기억하는 편입니다.", type: "symbolic" },
+      { id:23, text: "달, 꽃, 불, 그림자 같은 일상적인 것에도 나만의 의미를 느끼곤 합니다.", type: "symbolic" },
+      { id:24, text: "작품이나 발언을 볼 때, 그 뒤에 있는 메시지나 주제를 알고 싶어집니다.", type: "symbolic" },
+      { id:25, text: "추상적인 이야기나 철학적인 대화를 비교적 잘 따라가는 편입니다.", type: "symbolic" },
+
+      { id:26, text: "건물이나 도시에 있을 때, 지금 내가 어디에 있는지 감각적으로 잘 파악합니다.", type: "spatial" },
+      { id:27, text: "가구 배치나 동선 등을 효율적으로 만들 방법을 고민하는 것이 좋습니다.", type: "spatial" },
+      { id:28, text: "건물이나 지형 등을 볼 때, 어떻게 구성되어 있는지 구조가 신경 쓰입니다.", type: "spatial" },
+      { id:29, text: "한 번 걸어본 길은 비교적 잘 기억하는 편입니다.", type: "spatial" },
+      { id:30, text: "퍼즐, 블록, 길을 만드는 게임과 같이 배치와 구조를 다루는 놀이를 좋아합니다.", type: "spatial" },
+
+      { id:31, text: "아이디어를 낼 때, 제목 같은 한 문장을 먼저 떠올리고 내용을 확장하는 경우가 많습니다.", type: "verbal" },
+      { id:32, text: "자신의 경험을 다른 사람에게 도움이 되는 이야기로 엮는 것을 좋아합니다.", type: "narrative" },
+      { id:33, text: "메모를 할 때, 자연스럽게 단어와 화살표·상자·간단한 그림을 섞어 사용합니다.", type: "visual" },
+      { id:34, text: "직감으로 먼저 방향을 정한 뒤, 나중에 이유를 논리적으로 설명하는 편입니다.", type: "intuitive" },
+      { id:35, text: "사진 한 장이나 한 장면만 보고도, 그 뒤에 있을 법한 이야기나 주제를 상상합니다.", type: "symbolic" },
+      { id:36, text: "지도 앱을 열면, 여러 경로를 비교해 보면서 최적의 길을 찾고 싶어집니다.", type: "spatial" },
+      { id:37, text: "생각할 때 문장과 이미지가 동시에 떠오르는 경우가 많습니다.", type: "visual" },
+      { id:38, text: "마감이 가까워지면 좋은 아이디어가 한꺼번에 떠오르는 편입니다.", type: "intuitive" },
+      { id:39, text: "일어난 일을 그대로 받아들이기보다, 나만의 의미를 붙여 해석하는 편입니다.", type: "symbolic" },
+      { id:40, text: "여행이나 이사 등 큰 변화를 앞두면, 그 상황 전체를 머릿속에서 여러 번 시뮬레이션합니다.", type: "spatial" }
+    ];
+
+    const choices = [
+      { value: 4, label: "매우 그렇다" },
+      { value: 3, label: "어느 정도 그렇다" },
+      { value: 2, label: "잘 모르겠다" },
+      { value: 1, label: "별로 그렇지 않다" },
+      { value: 0, label: "전혀 그렇지 않다" }
+    ];
+
+    const typeMeta = {
+      verbal:   { label: "언어적 사고 (Verbal)",   color: "#f4a460" },
+      narrative:{ label: "서사적 사고 (Narrative)",color: "#ff7f7f" },
+      visual:   { label: "시각적 사고 (Visual)",   color: "#ffa64d" },
+      intuitive:{ label: "직관적 사고 (Intuitive)",color: "#66cdaa" },
+      symbolic: { label: "상징적 사고 (Symbolic)", color: "#9370db" },
+      spatial:  { label: "공간적 사고 (Spatial)",  color: "#20b2aa" }
+    };
+
+    // description data per thinking style
+    const typeData = {
+      verbal: {
+        core: "언어적 사고가 강한 사람은 생각을 말이나 글로 정리할 때 가장 잘 이해합니다. 감정이나 추상적인 아이디어도 문장으로 표현하면 머릿속이 정리되고, 정보를 구조화하는 데 능숙합니다. 대화에서는 자연스럽게 ‘결론적으로 말하면…’과 같이 요약하는 역할을 맡는 경우가 많습니다.",
+        pattern: "평소 말투는 “그러니까”, “한마디로 말하면” 같은 표현을 자주 사용합니다. 말을 하기 전에 머릿속에서 문장을 다 정리해 두는 편이라, 말하기 직전에 잠시 침묵이 생기기도 합니다. 설명을 꼼꼼히 하다 보니, 상대에 따라서는 ‘캐묻는다’거나 ‘지적한다’고 느낄 수 있습니다.",
+        stress: "이유를 알려 주지 않는 지시나, 갑작스럽게 방향이 바뀌는데 설명이 없는 상황에서 큰 스트레스를 느낍니다. 생각을 노트에 써 보거나, 차분히 말로 풀어낼 수 있을 때 긴장이 풀립니다. 자신의 아이디어가 또렷한 문장으로 정리되었을 때 가장 큰 만족감을 느끼는 타입입니다.",
+        love: "연애 관계에서는 서로의 생각과 감정을 솔직한 말로 공유하는 것을 중요하게 여깁니다. 애매한 밀당보다는 “지금 이렇게 느끼고 있다”, “이렇게 해 주면 고맙겠다”와 같은 표현을 선호합니다. 말을 천천히 들어 주고, 단어 하나하나를 소중히 대해 주는 파트너와 잘 맞습니다.",
+        job: "문장을 다루거나 정보를 정리·전달하는 일을 잘해 냅니다. 글쓰기, 편집, 기획, 고객 응대, 비서, 컨설팅 등에서 강점을 보일 수 있습니다. 복잡한 내용을 이해하기 쉬운 언어로 번역하는 능력이 뛰어납니다.",
+        study: "새로운 내용을 배울 때는, 그대로 외우는 것보다 ‘내 말로 다시 설명해 보기’를 통해 이해가 깊어집니다. 요약 노트를 만들거나, 가상의 상대에게 설명하듯이 말해 보는 공부법이 특히 효과적입니다."
+      },
+      narrative: {
+        core: "서사적 사고가 강한 사람은 세상을 시간의 흐름을 가진 이야기로 이해합니다. 흩어진 사건과 정보를 연결해서, 시작·전개·결말이 있는 스토리로 재구성하는 데 능숙합니다. 사람의 이야기를 들을 때도 “이 사람이 말하고 싶은 전체 이야기는 무엇일까”를 자연스럽게 상상합니다.",
+        pattern: "“예를 하나 들면…”, “옛날에 이런 일이 있었어”와 같은 말투를 자주 사용합니다. 배경과 전환점까지 함께 말하고 싶어서 설명이 길어지는 경향이 있습니다. 핵심만 빨리 듣고 싶은 사람에게는 돌아가는 이야기처럼 느껴질 수 있습니다.",
+        stress: "현재 일어나고 있는 일을 하나의 의미 있는 이야기로 엮지 못할 때 스트레스를 크게 느낍니다. 부당하거나 납득되지 않는 사건은 마음속에서 계속 ‘미완의 에피소드’로 남아 있을 수 있습니다. 반대로 자신의 경험담이 누군가에게 도움이 되었다고 느낄 때 큰 보람을 느낍니다.",
+        love: "연애에서는 둘만의 ‘우리 이야기’를 중요하게 여깁니다. 처음 만난 날이나 인상 깊었던 장면을 잘 기억하고, 나중에 함께 회상하는 것을 좋아합니다. 시간을 두고 천천히 관계를 쌓아 가는 것을 선호하며, 함께 추억을 쌓는 것을 즐기는 파트너와 잘 맞습니다.",
+        job: "인터뷰, 글쓰기, 강의, 상담, 마케팅, 발표 등 이야기를 통해 의미를 전달하는 일에 적성이 맞습니다. 복잡한 상황을 하나의 스토리로 정리하고, 사람들의 감정을 움직이게 만드는 능력이 있습니다.",
+        study: "단편적인 사실만 외우기보다는, 배경과 ‘왜 이런 일이 일어났는가’를 알 때 이해가 잘 됩니다. 사례나 역사 이야기처럼 서사가 있는 자료를 함께 보는 공부법이 효과적입니다."
+      },
+      visual: {
+        core: "시각적 사고가 강한 사람은 이미지를 통해 생각합니다. 레이아웃, 도표, 색감, 여백 등에 민감하며, 한 장의 그림으로 전체 구조를 파악하는 것을 선호합니다. 머릿속에서 정보를 일종의 ‘그림’으로 정리합니다.",
+        pattern: "“그려 보면 이런 느낌이야”, “레이아웃은 이렇게 가면 좋겠어” 같은 표현을 자주 사용합니다. 머릿속에는 분명한 이미지가 있지만, 말로만 설명해야 할 때 답답함을 느낄 수 있습니다. 주변 사람에게는 ‘디자인에 까다롭다’고 보일 때도 있습니다.",
+        stress: "정보가 여기저기 흩어져 있거나, 구조가 보이지 않을 때 피로감을 느낍니다. 물리적인 공간이 너무 지저분할 때도 집중이 어렵습니다. 좋은 슬라이드나 다이어그램이 완성되어 “이제 딱 보인다”는 느낌이 들 때 큰 만족을 느낍니다.",
+        love: "연애에서는 함께 보내는 공간과 분위기를 중요하게 여깁니다. 카페, 풍경, 집의 인테리어 등 시각적인 요소가 마음에 들 때 관계에 대한 만족감도 커집니다. 표정과 몸짓에서도 많은 정보를 읽어 내며, 말뿐 아니라 전체적인 분위기를 함께 느껴 주는 파트너와 잘 맞습니다.",
+        job: "디자인, 일러스트, 영상, UI/UX, 슬라이드 제작, 건축, 제품 디자인 등 아이디어를 시각적으로 표현하는 일에 강점을 가질 수 있습니다. 추상적인 개념을 눈에 보이는 형태로 바꾸는 능력이 뛰어납니다.",
+        study: "차트, 마인드맵, 다이어그램, 아이콘 등 시각 자료를 활용한 공부가 효과적입니다. 노트에 색을 구분해서 쓰거나 간단한 그림을 곁들이면 기억에 오래 남습니다."
+      },
+      intuitive: {
+        core: "직관적 사고가 강한 사람은 많은 정보 속에서도 빠르게 핵심을 파악합니다. 전체적인 느낌이 먼저 오고, 그 후에 논리를 붙여 가는 스타일입니다. 속도가 필요한 상황에서 방향을 정하는 데 강합니다.",
+        pattern: "“왠지 이런 느낌이 들어”, “감이 이쪽이라고 말해” 같은 표현을 자주 사용합니다. 내부에서는 여러 단서를 동시에 처리하고 있지만, 겉으로 보기에는 이유 없이 결정하는 것처럼 보일 수 있습니다. 그래서 주변에서 직관을 가볍게 보는 경우도 있습니다.",
+        stress: "세세한 규칙이나 절차에 지나치게 묶여 자유롭게 시도해 볼 수 없을 때 스트레스를 크게 느낍니다. 어느 정도 재량과 속도가 허용되는 환경에서 능력이 잘 발휘됩니다. 부담이 클 때는 산책이나 샤워처럼 머리를 비우는 시간을 갖는 것이 직관을 리셋하는 데 도움이 됩니다.",
+        love: "연애에서는 논리보다 ‘이 사람과 있으면 편한가’라는 전체적인 감각을 중요하게 여깁니다. 분위기와 리듬이 잘 맞는 상대에게 끌리며, 세부 사항을 지나치게 캐묻지 않고 어느 정도 자유를 인정해 주는 파트너와 잘 맞습니다.",
+        job: "불확실성이 크고 변화가 빠른 분야에서 강점을 보입니다. 새로운 비즈니스, 기획, 크리에이티브 작업, 컨설팅, 긴급 대응 등에서 상황을 빨리 읽고 방향을 제시하는 역할을 맡을 수 있습니다.",
+        study: "처음부터 완벽히 이해하려 하기보다, 대략적인 전체 그림을 잡은 뒤 세부 내용을 채워 나갈 때 학습 효율이 좋습니다. 배우면서 곧바로 시도해 보는 ‘학습과 실행의 병행’이 잘 맞습니다."
+      },
+      symbolic: {
+        core: "상징적 사고가 강한 사람은 눈에 보이는 것 이면의 의미와 주제를 읽어 내는 데 능합니다. 경험을 상징과 비유로 연결해 이해하며, 깊은 이야기와 큰 질문에 자연스럽게 끌립니다.",
+        pattern: "“이건 이런 걸 상징하는 것 같아”, “여기서 말하고 싶은 주제는…” 같은 말을 자주 합니다. 의미와 의도를 이야기하는 것을 좋아하기 때문에, 어떤 사람에게는 ‘너무 깊게 생각한다’, ‘복잡하게 만든다’고 보일 수 있습니다.",
+        stress: "단기 성과나 표면적인 일만 강조되고, 의미나 가치에 대한 대화가 전혀 없는 환경에서는 지치기 쉽습니다. 책, 예술, 음악과 함께 조용히 생각할 수 있는 시간이 에너지를 회복하게 해 줍니다.",
+        love: "연애에서는 상징성과 이야기성을 중요하게 여깁니다. 특별한 장소, 의미 있는 선물, 서로만 아는 말 등 관계에 상징을 부여하는 것을 좋아합니다. 가치관과 내면세계에 대해 함께 이야기해 줄 수 있는 파트너와 잘 맞습니다.",
+        job: "글쓰기, 시, 철학, 예술, 브랜드 기획, 콘셉트 디자인 등 ‘메시지’와 ‘의미’를 다루는 분야에서 힘을 발휘할 수 있습니다. 표현 뒤에 어떤 이야기를 담을지 설계하는 능력이 뛰어납니다.",
+        study: "기계적으로 암기하기보다는 ‘이것이 나에게 어떤 의미가 있는가’를 스스로 물을 때 이해가 잘 됩니다. 키워드들을 서로 연결해 개념 지도를 만들면, 지식이 하나의 세계관 안에 자리 잡기 쉽습니다."
+      },
+      spatial: {
+        core: "공간적 사고가 강한 사람은 위치와 구조, 동선에 대한 감각이 뛰어납니다. 사람과 물건이 어떻게 배치되고 움직이는지가 중요하게 느껴지며, 머릿속에서 정보를 일종의 3D 모델처럼 다루는 경향이 있습니다.",
+        pattern: "“구조상 여기서 막혀”, “동선이 좋지 않아” 같은 표현을 자주 씁니다. 세밀한 공간 감각 때문에, 다른 사람에게는 ‘쓸데없이 까다롭다’고 보일 위험도 있습니다.",
+        stress: "동선이 비효율적이거나, 공간이 너무 어지럽혀진 곳에서는 스트레스를 크게 느낍니다. 반대로 방이나 작업 흐름을 정리해 사람들이 편리하게 움직일 수 있게 만들었을 때 큰 만족을 느낍니다.",
+        love: "연애에서는 함께 사는 공간과 생활 리듬을 중요하게 여깁니다. 집 구조, 가구 배치, 생활 동선이 잘 맞는 상대에게 큰 안정감을 느낍니다. 현실적인 생활을 함께 디자인해 줄 수 있는 파트너와 잘 맞습니다.",
+        job: "건축, 인테리어, 물류, 공정 설계, 이벤트 운영, 매장·동선 기획 등 공간과 흐름을 설계하는 일에 적성이 맞습니다. 사람과 물건이 어떻게 움직이면 가장 효율적인지 설계하는 능력이 있습니다.",
+        study: "모형, 도면, 지도, 실제 물건 등을 활용한 공부가 효과적입니다. 손으로 배치해 보고 옮겨 보는 활동을 통해 개념을 더 깊이 이해할 수 있습니다."
+      }
+    };
+
+    function renderQuestions() {
+      const container = document.getElementById("questions");
+      container.innerHTML = "";
+      questions.forEach((q, index) => {
+        const div = document.createElement("div");
+        div.className = "question";
+        const num = document.createElement("div");
+        num.className = "q-number";
+        num.textContent = `문항 ${index + 1} / ${questions.length}`;
+        const text = document.createElement("div");
+        text.textContent = q.text;
+        const opts = document.createElement("div");
+        opts.className = "options";
+
+        choices.forEach((c, i) => {
+          const id = `q${q.id}_${i}`;
+          const label = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `q${q.id}`;
+          input.value = String(c.value);
+          input.id = id;
+          label.appendChild(input);
+          const span = document.createElement("span");
+          span.textContent = " " + c.label;
+          label.appendChild(span);
+          opts.appendChild(label);
+        });
+
+        div.appendChild(num);
+        div.appendChild(text);
+        div.appendChild(opts);
+        container.appendChild(div);
+      });
+    }
+
+    function showResult() {
+      const scores = {
+        verbal: 0,
+        narrative: 0,
+        visual: 0,
+        intuitive: 0,
+        symbolic: 0,
+        spatial: 0
+      };
+
+      for (const q of questions) {
+        const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+        if (!selected) {
+          alert("모든 문항에 답해 주세요.");
+          return;
+        }
+        const v = parseInt(selected.value, 10);
+        scores[q.type] += v;
+      }
+
+      const entries = Object.entries(scores);
+      entries.sort((a, b) => b[1] - a[1]);
+      const [mainKey, mainScore] = entries[0];
+      const [subKey, subScore]   = entries[1];
+
+      const maxScore = mainScore || 1; // top bar = 100%
+      const resultDiv = document.getElementById("result");
+      const totalQuestionsPerType = {};
+      for (const q of questions) {
+        totalQuestionsPerType[q.type] = (totalQuestionsPerType[q.type] || 0) + 1;
+      }
+
+      const barsHtml = entries.map(([key, score]) => {
+        const meta = typeMeta[key];
+        const percent = Math.round((score / maxScore) * 100);
+        const maxPerType = (totalQuestionsPerType[key] || 1) * 4;
+        const scoreText = `${score}/${maxPerType}`;
+        return `
+          <div class="bar-row">
+            <div class="bar-label">${meta.label}</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${percent}%; background:${meta.color};"></div>
+            </div>
+            <div class="bar-score">${scoreText}</div>
+          </div>
+        `;
+      }).join("");
+
+      const mainMeta = typeMeta[mainKey];
+      const subMeta  = typeMeta[subKey];
+
+      const textHtml = buildResultText(mainKey, subKey);
+
+      resultDiv.innerHTML = `
+        <div class="tag-row">
+          <span class="tag">메인: ${mainMeta.label}</span>
+          <span class="tag sub">서브: ${subMeta.label}</span>
+        </div>
+        <h2>${mainMeta.label} × ${subMeta.label} 타입</h2>
+        <div class="bars">
+          ${barsHtml}
+        </div>
+        ${textHtml}
+      `;
+      resultDiv.scrollIntoView({ behavior: "smooth" });
+    }
+
+    function buildResultText(mainKey, subKey) {
+      const mainT = typeMeta[mainKey].label;
+      const subT  = typeMeta[subKey].label;
+      const mainD = typeData[mainKey];
+      const subD  = typeData[subKey];
+      const isSame = mainKey === subKey;
+
+      const titleIntro = isSame
+        ? `이번 결과에서는 ${mainT} 가 특히 두드러지게 나타났습니다.`
+        : `이번 결과에서는 ${mainT} 가 메인, ${subT} 가 서브로 강하게 나타났습니다.`;
+
+      const synergyText = isSame
+        ? `${mainT} 를 깊이 있게 사용하는 타입입니다. 주변 사람들이 방향을 잃었을 때, 자연스럽게 기준과 언어를 제공하는 역할을 맡는 경우가 많습니다.`
+        : `${mainT} 를 축으로 삼으면서 ${subT} 의 요소를 곁들여 쓰는 ‘복합형’ 스타일입니다. 메인인 ${mainT} 가 전체 구조와 기준을 잡고, 서브인 ${subT} 가 감각·이미지·스토리·직관·구조 감각 등을 보완해 줍니다. 이 조합 덕분에 단일 타입에서는 나오기 어려운 강점이 생깁니다.`;
+
+      const workSynergy = `
+        ${mainT} 와 ${subT} 의 조합 덕분에, 메인 스타일의 장점을 유지하면서도 서브 스타일의 시각을 함께 사용할 수 있습니다.
+        일에서는 메인의 구조화·판단력 위에, 서브가 가진 감수성·이야기성·시각성·직관성·공간 감각 등을 더해,
+        사람들에게 이해되기 쉽고 동시에 ‘당신답다’고 느껴지는 결과물을 만들기 좋습니다.
+      `;
+
+      const loveText = `
+        가까운 관계에서는 메인 스타일인 ${mainT} 가 가장 강하게 드러납니다. ${mainD.love}
+        여기에 서브 스타일인 ${subT} 도 더해져, 관계의 분위기와 표현 방식에 색을 입힙니다.
+        좋은 파트너는 당신의 ${mainT} 면을 존중하면서도, ${subT} 면에 대해서도 호기심을 가지고 함께 알아가려는 사람입니다.
+        한쪽만 칭찬하고 다른 쪽을 무시하거나 깎아내리는 관계에서는 시간이 지나면서 스트레스가 쌓이기 쉽습니다.
+      `;
+
+      return `
+        <div class="section">
+          <div class="section-title">당신 타입의 핵심</div>
+          <p>${titleIntro}</p>
+          <p>${mainD.core}</p>
+          ${!isSame ? `<p>여기에 ${subT} 의 다음과 같은 특성이 함께 작용합니다. ${subD.core}</p>` : ""}
+          <p>${synergyText}</p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">자주 나오는 말투와 생각 패턴, 그리고 오해 포인트</div>
+          <p>${mainD.pattern}</p>
+          ${!isSame ? `<p>상황에 따라 서브 스타일인 ${subT} 도 드러나기 때문에, 주변 사람에게는 다음과 같이 보일 때도 있습니다. ${subD.pattern}</p>` : ""}
+        </div>
+
+        <div class="section">
+          <div class="section-title">일상에서 느끼기 쉬운 스트레스와 만족감</div>
+          <p>${mainD.stress}</p>
+          ${!isSame ? `<p>${subT} 의 영향으로, 다음과 같은 점도 스트레스·만족감에 영향을 줍니다. ${subD.stress}</p>` : ""}
+        </div>
+
+        <div class="section">
+          <div class="section-title">연애 경향과 파트너십</div>
+          <p>${loveText}</p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">어울리는 일과 역할</div>
+          <p>${mainD.job}</p>
+          ${!isSame ? `<p>서브 스타일인 ${subT} 는 커리어 선택에 다음과 같은 색을 더해 줍니다. ${subD.job}</p>` : ""}
+          <p>${workSynergy}</p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">당신에게 맞는 학습 방식</div>
+          <p>${mainD.study}</p>
+          ${!isSame ? `<p>${subT} 면을 살리기 위해서는, 다음과 같은 접근도 잘 맞습니다. ${subD.study}</p>` : ""}
+        </div>
+
+        <p class="small-note">
+          이 테스트는 지금 시점에서의 상대적인 강약을 보여 줄 뿐입니다.
+          상황과 성장에 따라 균형은 바뀔 수 있으니, 자기 이해를 돕는 하나의 힌트 정도로 가볍게 참고해 주시면 좋겠습니다.
+        </p>
+      `;
+    }
+
+    renderQuestions();
+  </script>
+</body>
+</html>
